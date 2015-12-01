@@ -6,5 +6,10 @@
   "author": null,
   "dependencies": {
     "react-native": "exponentjs/react-native#2015-11-13"
+  },
+  "devDependencies": {
+    "babel-eslint": "^4.1.6",
+    "eslint": "^1.10.3",
+    "eslint-plugin-react": "^3.11.2"
   }
 }
