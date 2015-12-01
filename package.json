@@ -1,0 +1,10 @@
+{
+  "name": "fluxpybird",
+  "version": "0.0.0",
+  "description": "Hello Exponent!",
+  "main": "main.js",
+  "author": null,
+  "dependencies": {
+    "react-native": "exponentjs/react-native#2015-11-13"
+  }
+}
