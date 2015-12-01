@@ -5,7 +5,9 @@
   "main": "main.js",
   "author": null,
   "dependencies": {
-    "react-native": "exponentjs/react-native#2015-11-13"
+    "react-native": "exponentjs/react-native#2015-11-13",
+    "redux": "^3.0.4",
+    "react-redux": "^3.1.0"
   },
   "devDependencies": {
     "babel-eslint": "^4.1.6",
