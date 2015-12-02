@@ -71,6 +71,7 @@ const birdReduce = defaultReducer({
       y: bird.y + bird.vy * dt,
       vy: die ? -150 : bird.vy + bird.ay * dt,
       vx: bird.vx + 9 * dt,
+      ay: die ? 700 : bird.ay,
     });
   },
 
