@@ -3,6 +3,8 @@
 import React from 'react-native';
 const {
   Image,
+  StyleSheet,
+  View,
 } = React;
 
 import { connect } from 'react-redux/native';
@@ -68,6 +70,86 @@ const Bird = connect(
 
 
 /**
+ * Pipes
+ *
+ * A pipe's (x, y) is where the left corner of its 'surface' is (bottom edge for
+ * top-pipe, top edge for bottom-pipe)
+ */
+
+const defaultPipe = {
+  x: SCREEN_WIDTH + 2, y: -2,
+  w: 60, h: 800,
+  bottom: false,
+};
+
+const pipesReduce = (state, action, dispatch) => {
+  switch (action.type) {
+    case 'START':
+      return {
+        distance: 120,
+        pipes: [],
+      };
+
+    case 'TICK':
+      if (state.pipes.distance < 0) {
+        dispatch({ type: 'ADD_PIPES' });
+      }
+      return {
+        ...state.pipes,
+        distance: (state.pipes.distance < 0 ?
+                   240 * Math.random() + 70 :
+                   state.pipes.distance - state.bird.vx * action.dt),
+        pipes: state.pipes.pipes.map((pipe) => ({
+          ...pipe,
+          x: pipe.x - state.bird.vx * action.dt,
+        })).filter((pipe) => pipe.x + pipe.w > 0),
+      };
+
+    case 'ADD_PIPES':
+      const gap = 200 + 100 * Math.random();
+      const top = 100 + (SCREEN_HEIGHT - 500) * Math.random();
+      return {
+        ...state.pipes,
+        pipes: state.pipes.pipes.concat([
+          { ...defaultPipe, y: top, bottom: false },
+          { ...defaultPipe, y: top + gap, bottom: true },
+        ]),
+      };
+
+    default:
+      return state.pipes;
+  }
+};
+
+let maxNumPipes = 10;
+const Pipes = connect(
+  ({ pipes: { pipes } }) => ({ pipes })
+)(
+  ({ pipes }) => {
+    // Ensure a constant-ish number of components by rendering extra
+    // off-screen pipes
+    let key = 0;
+    maxNumPipes = Math.max(maxNumPipes, pipes.length);
+    return (
+      <View style={styles.container}>
+        {pipes.concat(Array(maxNumPipes - pipes.length).fill(defaultPipe))
+              .map((pipe) => (
+                <Image key={key++}
+                  style={{ position: 'absolute',
+                           left: pipe.x,
+                           top: pipe.bottom ? pipe.y : pipe.y - pipe.h,
+                           width: pipe.w,
+                           height: pipe.h,
+                           backgroundColor: 'transparent' }}
+                  source={{ uri: 'http://i.imgur.com/rXhKHaH.png' }}/>
+              ))}
+      </View>
+    );
+  }
+);
+
+
+/**
  * Fluxpy
  */
 
@@ -79,8 +161,19 @@ const sceneReduce = (state, action, dispatch) => {
 };
 
 const Scene = () => (
-  <Bird />
+  <View style={[styles.container, { backgroundColor: '#F5FCFF' }]}>
+    <Pipes />
+    <Bird />
+  </View>
 );
+
+
+let styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+});
 
 export default {
   sceneReduce,
