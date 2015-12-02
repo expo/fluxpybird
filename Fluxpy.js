@@ -9,6 +9,7 @@ const {
 
 import { connect } from 'react-redux/native';
 import Dimensions from 'Dimensions';
+import Immutable from 'seamless-immutable';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -23,27 +24,25 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const birdReduce = (state, action, dispatch) => {
   switch (action.type) {
     case 'START':
-      return {
+      return Immutable({
         x: SCREEN_WIDTH - 280,
         y: SCREEN_HEIGHT / 2,
         w: 41, h: 29,
         vy: 0, vx: 110,
         ay: 700,
-      };
+      });
 
     case 'TICK':
-      return {
-        ...state.bird,
+      return state.bird.merge({
         y: state.bird.y + state.bird.vy * action.dt,
         vy: state.bird.vy + state.bird.ay * action.dt,
         vx: state.bird.vx + 9 * action.dt,
-      };
+      });
 
     case 'TOUCH':
-      return {
-        ...state.bird,
+      return state.bird.merge({
         ay: action.pressed ? -1600 : 700,
-      };
+      });
 
     default:
       return state.bird;
@@ -51,18 +50,20 @@ const birdReduce = (state, action, dispatch) => {
 };
 
 const Bird = connect(
-  ({ bird }) => ({ bird })
+  ({ bird }) => (Immutable({ bird }))
 )(
   ({ bird }) => {
     const rot = Math.max(-25, Math.min(bird.vy / (bird.vy > 0 ? 9 : 6), 50));
     return (
-      <Image style={{ position: 'absolute',
-                      transform: [{ rotate: rot + 'deg' }],
-                      left: bird.x - bird.w / 2,
-                      top: bird.y - bird.h / 2,
-                      width: bird.w,
-                      height: bird.h,
-                      backgroundColor: 'transparent' }}
+      <Image
+        key="bird"
+        style={{ position: 'absolute',
+                 transform: [{ rotate: rot + 'deg' }],
+                 left: bird.x - bird.w / 2,
+                 top: bird.y - bird.h / 2,
+                 width: bird.w,
+                 height: bird.h,
+                 backgroundColor: 'transparent' }}
         source={{ uri: 'http://i.imgur.com/aAWCxNv.png' }}/>
     );
   }
@@ -85,17 +86,16 @@ const defaultPipe = {
 const pipesReduce = (state, action, dispatch) => {
   switch (action.type) {
     case 'START':
-      return {
+      return Immutable({
         distance: 120,
         pipes: [],
-      };
+      });
 
     case 'TICK':
       if (state.pipes.distance < 0) {
         dispatch({ type: 'ADD_PIPES' });
       }
-      return {
-        ...state.pipes,
+      return state.pipes.merge({
         distance: (state.pipes.distance < 0 ?
                    240 * Math.random() + 70 :
                    state.pipes.distance - state.bird.vx * action.dt),
@@ -103,19 +103,17 @@ const pipesReduce = (state, action, dispatch) => {
           ...pipe,
           x: pipe.x - state.bird.vx * action.dt,
         })).filter((pipe) => pipe.x + pipe.w > 0),
-      };
+      });
 
     case 'ADD_PIPES':
       const gap = 200 + 100 * Math.random();
       const top = 100 + (SCREEN_HEIGHT - 500) * Math.random();
-      return {
-        ...state.pipes,
-        pipes: [
-          ...state.pipes.pipes,
+      return state.pipes.merge({
+        pipes: state.pipes.pipes.concat([
           { ...defaultPipe, y: top, bottom: false },
           { ...defaultPipe, y: top + gap, bottom: true },
-        ],
-      };
+        ]),
+      });
 
     default:
       return state.pipes;
@@ -124,7 +122,7 @@ const pipesReduce = (state, action, dispatch) => {
 
 let maxNumPipes = 10;
 const Pipes = connect(
-  ({ pipes: { pipes } }) => ({ pipes })
+  ({ pipes: { pipes } }) => (Immutable({ pipes }))
 )(
   ({ pipes }) => {
     // Ensure a constant-ish number of components by rendering extra
@@ -160,10 +158,10 @@ const Pipes = connect(
  */
 
 const sceneReduce = (state, action, dispatch) => {
-  return {
+  return Immutable({
     bird: birdReduce(state, action, dispatch),
     pipes: pipesReduce(state, action, dispatch),
-  };
+  });
 };
 
 const Scene = () => (
