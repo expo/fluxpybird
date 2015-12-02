@@ -1,0 +1,10 @@
+{
+  "whitelist": [
+    "es6.constants",
+    "es6.modules",
+    "es6.forOf",
+    "es7.classProperties",
+    "es7.decorators",
+    "es7.doExpressions"
+  ]
+}
