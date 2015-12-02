@@ -10,7 +10,7 @@ const {
 import { connect, Provider } from 'react-redux/native';
 import { createStore } from 'redux';
 
-// import from a different module for a different game!
+// Import from a different module for a different game!
 import { sceneReduce, Scene } from './Fluxpy';
 
 
