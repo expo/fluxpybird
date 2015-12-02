@@ -15,39 +15,50 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 
+/*
+ * Return a reducer that runs the reducer `reductions[action]`, defaulting to
+ * `reductions.DEFAULT` if not found.
+ */
+const defaultReducer = (reductions) => (state, action, ...rest) => (
+  (reductions[action.type] || reductions.DEFAULT)(state, action, ...rest)
+);
+
+
 /**
  * Bird
  *
  * Bird's (x, y) is position of its center
  */
 
-const birdReduce = (state, action, dispatch) => {
-  switch (action.type) {
-    case 'START':
-      return Immutable({
-        x: SCREEN_WIDTH - 280,
-        y: SCREEN_HEIGHT / 2,
-        w: 41, h: 29,
-        vy: 0, vx: 110,
-        ay: 700,
-      });
+const birdReduce = defaultReducer({
+  START() {
+    return Immutable({
+      x: SCREEN_WIDTH - 280,
+      y: SCREEN_HEIGHT / 2,
+      w: 41, h: 29,
+      vy: 0, vx: 110,
+      ay: 700,
+    });
+  },
 
-    case 'TICK':
-      return state.bird.merge({
-        y: state.bird.y + state.bird.vy * action.dt,
-        vy: state.bird.vy + state.bird.ay * action.dt,
-        vx: state.bird.vx + 9 * action.dt,
-      });
+  TICK({ bird }, { dt }) {
+    return bird.merge({
+      y: bird.y + bird.vy * dt,
+      vy: bird.vy + bird.ay * dt,
+      vx: bird.vx + 9 * dt,
+    });
+  },
 
-    case 'TOUCH':
-      return state.bird.merge({
-        ay: action.pressed ? -1600 : 700,
-      });
+  TOUCH({ bird }, { pressed }) {
+    return bird.merge({
+      ay: pressed ? -1600 : 700,
+    });
+  },
 
-    default:
-      return state.bird;
-  }
-};
+  DEFAULT({ bird }) {
+    return bird;
+  },
+});
 
 const Bird = connect(
   ({ bird }) => (Immutable({ bird }))
@@ -83,42 +94,44 @@ const defaultPipe = {
   bottom: false,
 };
 
-const pipesReduce = (state, action, dispatch) => {
-  switch (action.type) {
-    case 'START':
-      return Immutable({
-        distance: 120,
-        pipes: [],
-      });
+const pipesReduce = defaultReducer({
+  START() {
+    return Immutable({
+      distance: 120,
+      pipes: [],
+    });
+  },
 
-    case 'TICK':
-      if (state.pipes.distance < 0) {
-        dispatch({ type: 'ADD_PIPES' });
-      }
-      return state.pipes.merge({
-        distance: (state.pipes.distance < 0 ?
-                   240 * Math.random() + 70 :
-                   state.pipes.distance - state.bird.vx * action.dt),
-        pipes: state.pipes.pipes.map((pipe) => ({
-          ...pipe,
-          x: pipe.x - state.bird.vx * action.dt,
-        })).filter((pipe) => pipe.x + pipe.w > 0),
-      });
+  TICK({ bird, pipes }, { dt }, dispatch) {
+    if (pipes.distance < 0) {
+      dispatch({ type: 'ADD_PIPES' });
+    }
+    return pipes.merge({
+      distance: (pipes.distance < 0 ?
+                 240 * Math.random() + 70 :
+                 pipes.distance - bird.vx * dt),
+      pipes: pipes.pipes.map((pipe) => ({
+        ...pipe,
+        x: pipe.x - bird.vx * dt,
+      })).filter((pipe) => pipe.x + pipe.w > 0),
+    });
+  },
 
-    case 'ADD_PIPES':
-      const gap = 200 + 100 * Math.random();
-      const top = 100 + (SCREEN_HEIGHT - 500) * Math.random();
-      return state.pipes.merge({
-        pipes: state.pipes.pipes.concat([
-          { ...defaultPipe, y: top, bottom: false },
-          { ...defaultPipe, y: top + gap, bottom: true },
-        ]),
-      });
+  ADD_PIPES({ pipes }) {
+    const gap = 200 + 100 * Math.random();
+    const top = 100 + (SCREEN_HEIGHT - 500) * Math.random();
+    return pipes.merge({
+      pipes: pipes.pipes.concat([
+        { ...defaultPipe, y: top, bottom: false },
+        { ...defaultPipe, y: top + gap, bottom: true },
+      ]),
+    });
+  },
 
-    default:
-      return state.pipes;
-  }
-};
+  DEFAULT({ pipes }) {
+    return pipes;
+  },
+});
 
 let maxNumPipes = 10;
 const Pipes = connect(
