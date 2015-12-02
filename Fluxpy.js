@@ -62,10 +62,8 @@ const reduce = (state, action) => {
   };
 };
 
-const Scene = connect()(
-  () => (
-    <Bird />
-  )
+const Scene = () => (
+  <Bird />
 );
 
 export default {

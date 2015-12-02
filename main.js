@@ -94,13 +94,11 @@ class Clock extends React.Component {
  * Brings together event handlers and the Scene.
  */
 
-const Game = connect()(
-  () => (
-    <Touch>
-      <Clock />
-      <Scene />
-    </Touch>
-  )
+const Game = () => (
+  <Touch>
+    <Clock />
+    <Scene />
+  </Touch>
 );
 
 
