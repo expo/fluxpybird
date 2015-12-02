@@ -23,8 +23,10 @@ import { sceneReduce, Scene } from './Fluxpy';
 
 const Touch = connect()(
   ({ dispatch, children, ...props }) => {
-    const panGrant = () => dispatch({ type: 'TOUCH', pressed: true });
-    const panRelease = () => dispatch({ type: 'TOUCH', pressed: false });
+    const panGrant = (_, gestureState) =>
+      dispatch({ type: 'TOUCH', pressed: true, gestureState });
+    const panRelease = (_, gestureState) =>
+      dispatch({ type: 'TOUCH', pressed: false, gestureState });
     const panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: panGrant,
