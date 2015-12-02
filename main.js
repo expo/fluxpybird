@@ -1,76 +1,17 @@
-/**
- * Main component
- */
 'use strict';
 
 import React from 'react-native';
 const {
   AppRegistry,
   PanResponder,
-  StyleSheet,
-  Text,
   View,
 } = React;
 
 import { connect, Provider } from 'react-redux/native';
 import { createStore } from 'redux';
 
-
-/**
- * reduce
- */
-
-const reduce = (state, action) => {
-  switch (action.type) {
-    case 'START':
-      return {
-        time: 0,
-        touching: false,
-      };
-
-    case 'TICK':
-      return {
-        ...state,
-        time: state.time + action.dt,
-      };
-
-    case 'TOUCH':
-      return {
-        ...state,
-        touching: action.pressed,
-      };
-
-    default:
-      return state;
-  }
-};
-
-
-/**
- * Scene
- */
-
-const Scene = connect(
-  ({ time, touching }) => ({ time, touching })
-)(
-  ({ time, touching }) => (
-    <View style={[sceneStyles.container, {
-        backgroundColor: touching ? '#000' : '#fff',
-      }]}>
-      <Text style={{ color: touching ? '#fff' : '#000' }}>
-        {Math.floor(time)} SECOND{1 <= time && time < 2 ? '' : 'S'} PASSED
-      </Text>
-    </View>
-  )
-);
-
-const sceneStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+// import from a different module for a different game!
+import { reduce, Scene } from './Fluxpy';
 
 
 /**
