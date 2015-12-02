@@ -39,7 +39,7 @@ const birdReduce = defaultReducer({
       x: SCREEN_WIDTH - 280,
       y: SCREEN_HEIGHT / 2,
       w: 41, h: 29,
-      vy: 0, vx: 110,
+      vx: 110, vy: 0,
       ay: 700,
     });
   },
@@ -67,21 +67,22 @@ const birdReduce = defaultReducer({
       }
     }
 
-    let vy;
+    let vx = bird.vx;
+    let vy = bird.vy;
     if (splash) {
       vy = 140 * Math.sin(1.2 * Math.PI * bird.time);
     } else if (die) {
       vy = -150;
     } else {
-      vy = bird.vy + bird.ay * dt;
+      vx += 9 * dt;
+      vy += bird.ay * dt;
     }
 
     return bird.merge({
       time: bird.time + dt,
       alive: bird.alive && !die,
       y: bird.y + bird.vy * dt,
-      vy,
-      vx: bird.vx + 9 * dt,
+      vx, vy,
       ay: die ? 700 : bird.ay,
     });
   },
