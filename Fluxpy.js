@@ -131,22 +131,24 @@ const Pipes = connect(
     // off-screen pipes
     let key = 0;
     maxNumPipes = Math.max(maxNumPipes, pipes.length);
-    const renderedPipes = [
-      ...pipes,
-      ...Array(maxNumPipes - pipes.length).fill(defaultPipe),
-    ].map((pipe) => (
-      <Image key={key++}
-        style={{ position: 'absolute',
-                 left: pipe.x,
-                 top: pipe.bottom ? pipe.y : pipe.y - pipe.h,
-                 width: pipe.w,
-                 height: pipe.h,
-                 backgroundColor: 'transparent' }}
-        source={{ uri: 'http://i.imgur.com/rXhKHaH.png' }}/>
-    ));
     return (
       <View style={styles.container}>
-        {renderedPipes}
+        {
+          [
+            ...pipes,
+            ...Array(maxNumPipes - pipes.length).fill(defaultPipe),
+          ].map((pipe) => (
+            <Image key={key++}
+              style={{ position: 'absolute',
+                       left: pipe.x,
+                       top: pipe.bottom ? pipe.y : pipe.y - pipe.h,
+                       width: pipe.w,
+                       height: pipe.h,
+                       backgroundColor: 'transparent' }}
+              source={{ uri: 'http://i.imgur.com/rXhKHaH.png' }}
+            />
+          ))
+        }
       </View>
     );
   }
