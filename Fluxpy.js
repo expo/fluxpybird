@@ -34,6 +34,7 @@ const defaultReducer = (reductions) => (state, action, ...rest) => (
 const birdReduce = defaultReducer({
   START() {
     return Immutable({
+      time: 0,
       alive: true,
       x: SCREEN_WIDTH - 280,
       y: SCREEN_HEIGHT / 2,
@@ -43,7 +44,7 @@ const birdReduce = defaultReducer({
     });
   },
 
-  TICK({ bird, pipes: { pipes } }, { dt }, dispatch) {
+  TICK({ splash, bird, pipes: { pipes } }, { dt }, dispatch) {
     let die = false;
     if (bird.alive) {
       if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
@@ -66,10 +67,20 @@ const birdReduce = defaultReducer({
       }
     }
 
+    let vy;
+    if (splash) {
+      vy = 140 * Math.sin(1.2 * Math.PI * bird.time);
+    } else if (die) {
+      vy = -150;
+    } else {
+      vy = bird.vy + bird.ay * dt;
+    }
+
     return bird.merge({
+      time: bird.time + dt,
       alive: bird.alive && !die,
       y: bird.y + bird.vy * dt,
-      vy: die ? -150 : bird.vy + bird.ay * dt,
+      vy,
       vx: bird.vx + 9 * dt,
       ay: die ? 700 : bird.ay,
     });
@@ -128,7 +139,10 @@ const pipesReduce = defaultReducer({
     });
   },
 
-  TICK({ bird, pipes }, { dt }, dispatch) {
+  TICK({ splash, bird, pipes }, { dt }, dispatch) {
+    if (splash) {
+      return pipes;
+    }
     if (pipes.distance < 0) {
       dispatch({ type: 'ADD_PIPES' });
     }
@@ -201,8 +215,8 @@ const scoreReduce = defaultReducer({
     return 0;
   },
 
-  TICK({ score }, { dt }) {
-    return score + dt;
+  TICK({ splash, score }, { dt }) {
+    return splash ? score : score + dt;
   },
 
   DEFAULT({ score }) {
@@ -211,13 +225,39 @@ const scoreReduce = defaultReducer({
 });
 
 const Score = connect(
-  ({ score }) => ({ score: Math.floor(score) })
+  ({ splash, score }) => ({ splash, score: Math.floor(score) })
 )(
-  ({ score }) => (
+  ({ splash, score }) => (
     <Text style={styles.score}>
-      {score}
+      {splash ? '' : score}
     </Text>
   )
+);
+
+
+/**
+ * Splash
+ */
+
+const Splash = connect(
+  ({ splash }) => ({ splash })
+)(
+  ({ splash }) => {
+    if (!splash) {
+      return <View>{null}</View>;
+    }
+
+    let w = 398, h = 202;
+    return (
+      <Image style={{ position: 'absolute',
+                      left: (SCREEN_WIDTH - w) / 2,
+                      top: 100,
+                      width: w,
+                      height: h,
+                      backgroundColor: 'transparent' }}
+        source={{ uri: 'http://i.imgur.com/kgJfxjH.png' }}/>
+    );
+  }
 );
 
 
@@ -231,7 +271,9 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
   switch (action.type) {
     case 'START':
       // No parent when re-starting
-      newState = Immutable({});
+      newState = Immutable({
+        splash: true,
+      });
       break;
 
     case 'TICK':
@@ -264,6 +306,7 @@ const Scene = () => (
     <Pipes />
     <Bird />
     <Score />
+    <Splash />
   </View>
 );
 
