@@ -6,6 +6,7 @@
 import React from 'react-native';
 const {
   AppRegistry,
+  PanResponder,
   StyleSheet,
   Text,
   View,
@@ -23,8 +24,8 @@ const reduce = (state, action) => {
   switch (action.type) {
     case 'START':
       return {
-        count: 0,
         time: 0,
+        touching: false,
       };
 
     case 'TICK':
@@ -33,10 +34,10 @@ const reduce = (state, action) => {
         time: state.time + action.dt,
       };
 
-    case 'CLICK':
+    case 'TOUCH':
       return {
         ...state,
-        count: state.count + 1,
+        touching: action.pressed,
       };
 
     default:
@@ -50,18 +51,18 @@ const reduce = (state, action) => {
  */
 
 const Game = connect(
-  ({ time, count }) => ({ time, count })
+  ({ time, touching }) => ({ time, touching })
 )(
-  ({ dispatch, time, count }) => (
-    <View style={gameStyles.container}>
+  ({ dispatch, time, touching }) => (
+    <Touch style={[gameStyles.container, {
+        backgroundColor: touching ? '#000' : '#fff',
+      }]}>
       <Clock />
-      <Text>
+
+      <Text style={{ color: touching ? '#fff' : '#000' }}>
         {Math.floor(time)} SECOND{1 <= time && time < 2 ? '' : 'S'} PASSED
       </Text>
-      <Text onPress={() => dispatch({ type: 'CLICK' })}>
-        YOU CLICKED ME {count} TIME{count === 1 ? '' : 'S'}!
-      </Text>
-    </View>
+    </Touch>
   )
 );
 
@@ -75,7 +76,39 @@ const gameStyles = StyleSheet.create({
 
 
 /**
+ * Touch
+ *
+ * Dispatches { type: 'TOUCH', pressed: <whether pressed> } on touch events.
+ * Doesn't actually render anything.
+ */
+
+const Touch = connect()(
+  ({ dispatch, children, ...props }) => {
+    let panGrant = () => dispatch({ type: 'TOUCH', pressed: true });
+    let panRelease = () => dispatch({ type: 'TOUCH', pressed: false });
+    let panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: panGrant,
+      onPanResponderRelease: panRelease,
+      onPanResponderTerminate: panRelease,
+    });
+
+    return (
+      <View
+        {...props}
+        {...panResponder.panHandlers}>
+        {children}
+      </View>
+    );
+  }
+);
+
+
+/**
  * Clock
+ *
+ * Dispatches { type: 'TICK', dt: <seconds since last tick> } per animation
+ * frame. Doesn't actually render anything.
  */
 
 @connect()
@@ -117,6 +150,8 @@ class Clock extends React.Component {
 
 /**
  * Main
+ *
+ * Initializes a Redux store and provides it to Game.
  */
 
 const Main = () => {
