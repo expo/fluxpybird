@@ -70,9 +70,10 @@ const Bird = connect(
  * Fluxpy
  */
 
-const reduce = (state, action) => {
+const sceneReduce = (state, action, dispatch) => {
   return {
-    bird: birdReduce(state, action),
+    bird: birdReduce(state, action, dispatch),
+    pipes: pipesReduce(state, action, dispatch),
   };
 };
 
@@ -81,6 +82,6 @@ const Scene = () => (
 );
 
 export default {
-  reduce,
+  sceneReduce,
   Scene,
 };

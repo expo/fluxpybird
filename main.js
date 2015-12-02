@@ -11,7 +11,7 @@ import { connect, Provider } from 'react-redux/native';
 import { createStore } from 'redux';
 
 // import from a different module for a different game!
-import { reduce, Scene } from './Fluxpy';
+import { sceneReduce, Scene } from './Fluxpy';
 
 
 /**
@@ -108,8 +108,17 @@ const Game = () => (
  * Initializes a Redux store and provides it to Game.
  */
 
+const mainReduce = (state, action) => {
+  const actions = [action];
+  const dispatch = (action) => actions.push(action);
+  while (actions.length > 0) {
+    state = sceneReduce(state, actions.pop(), dispatch);
+  }
+  return state;
+};
+
 const Main = () => {
-  const store = createStore(reduce, reduce(null, { type: 'START' }));
+  const store = createStore(mainReduce, mainReduce(null, { type: 'START' }));
   return (
     <Provider store={store}>
       {() => <Game />}
