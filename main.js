@@ -112,7 +112,7 @@ const mainReduce = (state, action) => {
   const actions = [action];
   const dispatch = (action) => actions.push(action);
   while (actions.length > 0) {
-    state = sceneReduce(state, actions.pop(), dispatch);
+    state = sceneReduce(state, actions.shift(), dispatch);
   }
   return state;
 };
