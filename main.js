@@ -47,26 +47,24 @@ const reduce = (state, action) => {
 
 
 /**
- * Game
+ * Scene
  */
 
-const Game = connect(
+const Scene = connect(
   ({ time, touching }) => ({ time, touching })
 )(
-  ({ dispatch, time, touching }) => (
-    <Touch style={[gameStyles.container, {
+  ({ time, touching }) => (
+    <View style={[sceneStyles.container, {
         backgroundColor: touching ? '#000' : '#fff',
       }]}>
-      <Clock />
-
       <Text style={{ color: touching ? '#fff' : '#000' }}>
         {Math.floor(time)} SECOND{1 <= time && time < 2 ? '' : 'S'} PASSED
       </Text>
-    </Touch>
+    </View>
   )
 );
 
-const gameStyles = StyleSheet.create({
+const sceneStyles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
@@ -78,8 +76,8 @@ const gameStyles = StyleSheet.create({
 /**
  * Touch
  *
- * Dispatches { type: 'TOUCH', pressed: <whether pressed> } on touch events.
- * Doesn't actually render anything.
+ * Event handler that dispatches { type: 'TOUCH', pressed: <whether pressed> }
+ * on touch events. Doesn't actually render anything.
  */
 
 const Touch = connect()(
@@ -96,7 +94,8 @@ const Touch = connect()(
     return (
       <View
         {...props}
-        {...panResponder.panHandlers}>
+        {...panResponder.panHandlers}
+        style={{ ...props.style, flex: 1 }}>
         {children}
       </View>
     );
@@ -107,8 +106,8 @@ const Touch = connect()(
 /**
  * Clock
  *
- * Dispatches { type: 'TICK', dt: <seconds since last tick> } per animation
- * frame. Doesn't actually render anything.
+ * Event handler that dispatches { type: 'TICK', dt: <seconds since last tick> }
+ * per animation frame. Doesn't actually render anything.
  */
 
 @connect()
@@ -146,6 +145,22 @@ class Clock extends React.Component {
     return null;
   }
 }
+
+
+/**
+ * Game
+ *
+ * Brings together event handlers and the Scene.
+ */
+
+const Game = connect()(
+  () => (
+    <Touch>
+      <Clock />
+      <Scene />
+    </Touch>
+  )
+);
 
 
 /**
