@@ -33,6 +33,7 @@ const defaultReducer = (reductions) => (state, action, ...rest) => (
 const birdReduce = defaultReducer({
   START() {
     return Immutable({
+      alive: true,
       x: SCREEN_WIDTH - 280,
       y: SCREEN_HEIGHT / 2,
       w: 41, h: 29,
@@ -42,30 +43,39 @@ const birdReduce = defaultReducer({
   },
 
   TICK({ bird, pipes: { pipes } }, { dt }, dispatch) {
-    if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
-      dispatch({ type: 'START' });
-    } else if (
-      pipes.some(pipe => {
-        if (pipe.x + pipe.w > bird.x - bird.w / 2 &&
-          pipe.x < bird.x + bird.w / 2) {
-            return pipe.bottom ?
-                   bird.y + bird.h / 2 > pipe.y :
-                   bird.y - bird.h / 2 < pipe.y;
-        }})
-    ) {
-      dispatch({ type: 'START' });
+    let die = false;
+    if (bird.alive) {
+      if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
+        die = true;
+      }
+      if (
+        pipes.some(pipe => {
+          if (pipe.x + pipe.w > bird.x - bird.w / 2 &&
+            pipe.x < bird.x + bird.w / 2) {
+              return pipe.bottom ?
+                     bird.y + bird.h / 2 > pipe.y :
+                     bird.y - bird.h / 2 < pipe.y;
+          }})
+      ) {
+        die = true;
+      }
+    } else {
+      if (bird.y > SCREEN_HEIGHT + 400) {
+        dispatch({ type: 'START' });
+      }
     }
 
     return bird.merge({
+      alive: bird.alive && !die,
       y: bird.y + bird.vy * dt,
-      vy: bird.vy + bird.ay * dt,
+      vy: die ? -150 : bird.vy + bird.ay * dt,
       vx: bird.vx + 9 * dt,
     });
   },
 
   TOUCH({ bird }, { pressed }) {
     return bird.merge({
-      ay: pressed ? -1600 : 700,
+      ay: bird.alive && pressed ? -1600 : 700,
     });
   },
 
