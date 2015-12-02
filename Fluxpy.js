@@ -4,6 +4,7 @@ import React from 'react-native';
 const {
   Image,
   StyleSheet,
+  Text,
   View,
 } = React;
 
@@ -191,6 +192,35 @@ const Pipes = connect(
 
 
 /**
+ * Score
+ */
+
+const scoreReduce = defaultReducer({
+  START() {
+    return 0;
+  },
+
+  TICK({ score }, { dt }) {
+    return score + dt;
+  },
+
+  DEFAULT({ score }) {
+    return score;
+  },
+});
+
+const Score = connect(
+  ({ score }) => ({ score: Math.floor(score) })
+)(
+  ({ score }) => (
+    <Text style={styles.score}>
+      {score}
+    </Text>
+  )
+);
+
+
+/**
  * Fluxpy
  */
 
@@ -214,6 +244,7 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
   return state.merge({
     bird: birdReduce(state, action, dispatch),
     pipes: pipesReduce(state, action, dispatch),
+    score: scoreReduce(state, action, dispatch),
   });
 };
 
@@ -221,6 +252,7 @@ const Scene = () => (
   <View style={[styles.container, { backgroundColor: '#F5FCFF' }]}>
     <Pipes />
     <Bird />
+    <Score />
   </View>
 );
 
@@ -228,6 +260,14 @@ const Scene = () => (
 let styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'transparent',
+  },
+  score: {
+    position: 'absolute',
+    left: 20,
+    top: 20,
+    color: '#ff0000',
+    fontSize: 24,
     backgroundColor: 'transparent',
   },
 });
