@@ -204,7 +204,8 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
   }
   state = state.merge({ parent: state });
   if (action.type === 'TOUCH' && action.y0 && action.y0 < 200) {
-    state = state.merge({ reverse: action.pressed });
+    let reverse = action.pressed && !state.bird.alive;
+    state = state.merge({ reverse });
   }
 
   if (action.type === 'START') {
