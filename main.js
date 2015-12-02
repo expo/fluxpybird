@@ -120,7 +120,8 @@ const mainReduce = (state, action) => {
 };
 
 const Main = () => {
-  const store = createStore(mainReduce, mainReduce(null, { type: 'START' }));
+  const store = createStore(mainReduce,
+                            mainReduce(undefined, { type: 'START' }));
   return (
     <Provider store={store}>
       {() => <Game />}
