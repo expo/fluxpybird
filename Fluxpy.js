@@ -51,7 +51,7 @@ const Bird = connect(
   ({ bird }) => ({ bird })
 )(
   ({ bird }) => {
-    let rot = Math.max(-25, Math.min(bird.vy / (bird.vy > 0 ? 9 : 6), 50));
+    const rot = Math.max(-25, Math.min(bird.vy / (bird.vy > 0 ? 9 : 6), 50));
     return (
       <Image style={{ position: 'absolute',
                       transform: [{ rotate: rot + 'deg' }],

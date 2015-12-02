@@ -23,9 +23,9 @@ import { reduce, Scene } from './Fluxpy';
 
 const Touch = connect()(
   ({ dispatch, children, ...props }) => {
-    let panGrant = () => dispatch({ type: 'TOUCH', pressed: true });
-    let panRelease = () => dispatch({ type: 'TOUCH', pressed: false });
-    let panResponder = PanResponder.create({
+    const panGrant = () => dispatch({ type: 'TOUCH', pressed: true });
+    const panRelease = () => dispatch({ type: 'TOUCH', pressed: false });
+    const panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: panGrant,
       onPanResponderRelease: panRelease,
@@ -72,7 +72,7 @@ class Clock extends React.Component {
 
   _tick() {
     this._tickRequestID = undefined;
-    let currTime = Date.now();
+    const currTime = Date.now();
     this.tick(0.001 * (currTime - this._lastTickTime));
     this._lastTickTime = currTime;
     this._requestTick();
@@ -109,7 +109,7 @@ const Game = () => (
  */
 
 const Main = () => {
-  let store = createStore(reduce, reduce(null, { type: 'START' }));
+  const store = createStore(reduce, reduce(null, { type: 'START' }));
   return (
     <Provider store={store}>
       {() => <Game />}
