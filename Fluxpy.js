@@ -26,6 +26,20 @@ const birdReduce = (state, action) => {
         y: SCREEN_HEIGHT / 2,
         w: 41, h: 29,
         vy: 0, vx: 110,
+        ay: 700,
+      };
+
+    case 'TICK':
+      return {
+        ...state.bird,
+        y: state.bird.y + state.bird.vy * action.dt,
+        vy: state.bird.vy + state.bird.ay * action.dt,
+      };
+
+    case 'TOUCH':
+      return {
+        ...state.bird,
+        ay: action.pressed ? -1600 : 700,
       };
 
     default:
