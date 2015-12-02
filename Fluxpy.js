@@ -110,10 +110,11 @@ const pipesReduce = (state, action, dispatch) => {
       const top = 100 + (SCREEN_HEIGHT - 500) * Math.random();
       return {
         ...state.pipes,
-        pipes: state.pipes.pipes.concat([
+        pipes: [
+          ...state.pipes.pipes,
           { ...defaultPipe, y: top, bottom: false },
           { ...defaultPipe, y: top + gap, bottom: true },
-        ]),
+        ],
       };
 
     default:
@@ -130,19 +131,22 @@ const Pipes = connect(
     // off-screen pipes
     let key = 0;
     maxNumPipes = Math.max(maxNumPipes, pipes.length);
+    const renderedPipes = [
+      ...pipes,
+      ...Array(maxNumPipes - pipes.length).fill(defaultPipe),
+    ].map((pipe) => (
+      <Image key={key++}
+        style={{ position: 'absolute',
+                 left: pipe.x,
+                 top: pipe.bottom ? pipe.y : pipe.y - pipe.h,
+                 width: pipe.w,
+                 height: pipe.h,
+                 backgroundColor: 'transparent' }}
+        source={{ uri: 'http://i.imgur.com/rXhKHaH.png' }}/>
+    ));
     return (
       <View style={styles.container}>
-        {pipes.concat(Array(maxNumPipes - pipes.length).fill(defaultPipe))
-              .map((pipe) => (
-                <Image key={key++}
-                  style={{ position: 'absolute',
-                           left: pipe.x,
-                           top: pipe.bottom ? pipe.y : pipe.y - pipe.h,
-                           width: pipe.w,
-                           height: pipe.h,
-                           backgroundColor: 'transparent' }}
-                  source={{ uri: 'http://i.imgur.com/rXhKHaH.png' }}/>
-              ))}
+        {renderedPipes}
       </View>
     );
   }
