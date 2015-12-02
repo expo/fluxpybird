@@ -78,6 +78,7 @@ const gameStyles = StyleSheet.create({
  * Clock
  */
 
+@connect()
 class Clock extends React.Component {
   componentDidMount() {
     this._requestTick();
@@ -112,7 +113,6 @@ class Clock extends React.Component {
     return null;
   }
 }
-Clock = connect()(Clock);
 
 
 /**
