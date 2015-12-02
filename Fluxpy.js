@@ -170,8 +170,20 @@ const Pipes = connect(
  * Fluxpy
  */
 
-const sceneReduce = (state, action, dispatch) => {
-  return Immutable({
+const sceneReduce = (state = Immutable({}), action, dispatch) => {
+  // Time travel hacks
+  if (action.type === 'TICK' && state.reverse) {
+    if (!state.parent) {
+      return state;
+    }
+    return state.parent.merge({ reverse: true });
+  }
+  state = state.merge({ parent: state });
+  if (action.type === 'TOUCH' && action.y0 && action.y0 < 200) {
+    state = state.merge({ reverse: action.pressed });
+  }
+
+  return state.merge({
     bird: birdReduce(state, action, dispatch),
     pipes: pipesReduce(state, action, dispatch),
   });
