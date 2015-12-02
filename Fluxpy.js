@@ -226,23 +226,33 @@ const Score = connect(
  */
 
 const sceneReduce = (state = Immutable({}), action, dispatch) => {
-  // Time travel hacks
-  if (action.type === 'TICK' && state.reverse) {
-    if (!state.parent) {
-      return state;
-    }
-    return state.parent.merge({ reverse: true });
-  }
-  state = state.merge({ parent: state });
-  if (action.type === 'TOUCH') {
-    let reverse = action.pressed && !state.bird.alive;
-    state = state.merge({ reverse });
+  let newState = state.merge({ parent: state });
+
+  switch (action.type) {
+    case 'START':
+      // No parent when re-starting
+      newState = Immutable({});
+      break;
+
+    case 'TICK':
+      // If in reverse mode, abort and return the parent (also in reverse mode)
+      if (state.reverse) {
+        if (!state.parent) {
+          return state;
+        }
+        return state.parent.merge({ reverse: true });
+      }
+      break;
+
+    case 'TOUCH':
+      newState = newState.merge({
+        splash: false,
+        reverse: action.pressed && !state.bird.alive,
+      });
+      break;
   }
 
-  if (action.type === 'START') {
-    state = Immutable({});
-  }
-  return state.merge({
+  return newState.merge({
     bird: birdReduce(state, action, dispatch),
     pipes: pipesReduce(state, action, dispatch),
     score: scoreReduce(state, action, dispatch),
