@@ -17,8 +17,11 @@ import { sceneReduce, Scene } from './Fluxpy';
 /**
  * Touch
  *
- * Event handler that dispatches { type: 'TOUCH', pressed: <whether pressed> }
- * on touch events. Doesn't actually render anything.
+ * Event handler that dispatches
+ * `{ ...gestureState, type: 'TOUCH', pressed: <whether pressed> }`
+ * on touch events, where `gestureState` is given as in
+ * https://facebook.github.io/react-native/docs/panresponder.html. Doesn't
+ * actually render anything.
  */
 
 const Touch = connect()(
@@ -49,7 +52,8 @@ const Touch = connect()(
 /**
  * Clock
  *
- * Event handler that dispatches { type: 'TICK', dt: <seconds since last tick> }
+ * Event handler that dispatches
+ * `{ type: 'TICK', dt: <seconds since last tick> }`
  * per animation frame. Doesn't actually render anything.
  */
 
