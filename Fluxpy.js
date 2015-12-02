@@ -41,7 +41,21 @@ const birdReduce = defaultReducer({
     });
   },
 
-  TICK({ bird }, { dt }) {
+  TICK({ bird, pipes: { pipes } }, { dt }, dispatch) {
+    if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
+      dispatch({ type: 'START' });
+    } else if (
+      pipes.some(pipe => {
+        if (pipe.x + pipe.w > bird.x - bird.w / 2 &&
+          pipe.x < bird.x + bird.w / 2) {
+            return pipe.bottom ?
+                   bird.y + bird.h / 2 > pipe.y :
+                   bird.y - bird.h / 2 < pipe.y;
+        }})
+    ) {
+      dispatch({ type: 'START' });
+    }
+
     return bird.merge({
       y: bird.y + bird.vy * dt,
       vy: bird.vy + bird.ay * dt,
@@ -183,6 +197,9 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
     state = state.merge({ reverse: action.pressed });
   }
 
+  if (action.type === 'START') {
+    state = Immutable({});
+  }
   return state.merge({
     bird: birdReduce(state, action, dispatch),
     pipes: pipesReduce(state, action, dispatch),
