@@ -18,7 +18,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
  * Bird's (x, y) is position of its center
  */
 
-const birdReduce = (state, action) => {
+const birdReduce = (state, action, dispatch) => {
   switch (action.type) {
     case 'START':
       return {
@@ -34,6 +34,7 @@ const birdReduce = (state, action) => {
         ...state.bird,
         y: state.bird.y + state.bird.vy * action.dt,
         vy: state.bird.vy + state.bird.ay * action.dt,
+        vx: state.bird.vx + 9 * action.dt,
       };
 
     case 'TOUCH':
