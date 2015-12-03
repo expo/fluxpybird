@@ -50,15 +50,13 @@ const birdReduce = defaultReducer({
       if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
         die = true;
       }
-      if (
-        pipes.some(pipe => {
-          if (pipe.x + pipe.w > bird.x - bird.w / 2 &&
-            pipe.x < bird.x + bird.w / 2) {
-              return pipe.bottom ?
-                     bird.y + bird.h / 2 > pipe.y :
-                     bird.y - bird.h / 2 < pipe.y;
-          }})
-      ) {
+      if (pipes.some(({ x, y, w, bottom }) => (
+        x + w > bird.x - bird.w / 2 &&
+        x < bird.x + bird.w / 2 &&
+        (bottom ?
+         bird.y + bird.h / 2 > y :
+         bird.y - bird.h / 2 < y)
+      ))) {
         die = true;
       }
     } else {
@@ -99,19 +97,17 @@ const birdReduce = defaultReducer({
 });
 
 const Bird = connect(
-  ({ bird }) => (Immutable({ bird }))
+  ({ bird }) => bird
 )(
-  ({ bird }) => {
-    const rot = Math.max(-25, Math.min(bird.vy / (bird.vy > 0 ? 9 : 6), 50));
+  ({ x, y, w, h, vx, vy }) => {
+    const rot = Math.max(-25, Math.min(vy / (vy > 0 ? 9 : 6), 50));
     return (
       <Image
         key="bird"
         style={{ position: 'absolute',
                  transform: [{ rotate: rot + 'deg' }],
-                 left: bird.x - bird.w / 2,
-                 top: bird.y - bird.h / 2,
-                 width: bird.w,
-                 height: bird.h,
+                 left: x - w / 2, top: y - h / 2,
+                 width: w, height: h,
                  backgroundColor: 'transparent' }}
         source={{ uri: 'http://i.imgur.com/aAWCxNv.png' }}/>
     );
@@ -176,7 +172,7 @@ const pipesReduce = defaultReducer({
 
 let maxNumPipes = 10;
 const Pipes = connect(
-  ({ pipes: { pipes } }) => (Immutable({ pipes }))
+  ({ pipes: { pipes } }) => Immutable({ pipes })
 )(
   ({ pipes }) => {
     // Ensure a constant-ish number of components by rendering extra
@@ -189,13 +185,11 @@ const Pipes = connect(
           [
             ...pipes,
             ...Array(maxNumPipes - pipes.length).fill(defaultPipe),
-          ].map((pipe) => (
+          ].map(({ x, y, w, h, bottom}) => (
             <Image key={key++}
               style={{ position: 'absolute',
-                       left: pipe.x,
-                       top: pipe.bottom ? pipe.y : pipe.y - pipe.h,
-                       width: pipe.w,
-                       height: pipe.h,
+                       left: x, top: bottom ? y : y - h,
+                       width: w, height: h,
                        backgroundColor: 'transparent' }}
               source={{ uri: 'http://i.imgur.com/rXhKHaH.png' }}
             />
@@ -226,7 +220,7 @@ const scoreReduce = defaultReducer({
 });
 
 const Score = connect(
-  ({ splash, score }) => ({ splash, score: Math.floor(score) })
+  ({ splash, score }) => Immutable({ splash, score: Math.floor(score) })
 )(
   ({ splash, score }) => (
     <Text style={styles.score}>
@@ -241,20 +235,18 @@ const Score = connect(
  */
 
 const Splash = connect(
-  ({ splash }) => ({ splash })
+  ({ splash }) => Immutable({ splash })
 )(
   ({ splash }) => {
     if (!splash) {
       return <View>{null}</View>;
     }
 
-    let w = 398, h = 202;
+    const w = 398, h = 202;
     return (
       <Image style={{ position: 'absolute',
-                      left: (SCREEN_WIDTH - w) / 2,
-                      top: 100,
-                      width: w,
-                      height: h,
+                      left: (SCREEN_WIDTH - w) / 2, top: 100,
+                      width: w, height: h,
                       backgroundColor: 'transparent' }}
         source={{ uri: 'http://i.imgur.com/kgJfxjH.png' }}/>
     );
@@ -312,7 +304,7 @@ const Scene = () => (
 );
 
 
-let styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
