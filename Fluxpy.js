@@ -103,13 +103,14 @@ const Bird = connect(
     const rot = Math.max(-25, Math.min(vy / (vy > 0 ? 9 : 6), 50));
     return (
       <Image
-        key="bird"
+        key="bird-image"
         style={{ position: 'absolute',
                  transform: [{ rotate: rot + 'deg' }],
                  left: x - w / 2, top: y - h / 2,
                  width: w, height: h,
                  backgroundColor: 'transparent' }}
-        source={{ uri: 'http://i.imgur.com/aAWCxNv.png' }}/>
+        source={{ uri: 'http://i.imgur.com/aAWCxNv.png' }}
+      />
     );
   }
 );
@@ -180,13 +181,15 @@ const Pipes = connect(
     let key = 0;
     maxNumPipes = Math.max(maxNumPipes, pipes.length);
     return (
-      <View style={styles.container}>
+      <View
+        key="pipes-container"
+        style={styles.container}>
         {
           [
             ...pipes,
             ...Array(maxNumPipes - pipes.length).fill(defaultPipe),
           ].map(({ x, y, w, h, bottom}) => (
-            <Image key={key++}
+            <Image key={`pipe-image-${key++}`}
               style={{ position: 'absolute',
                        left: x, top: bottom ? y : y - h,
                        width: w, height: h,
@@ -223,7 +226,9 @@ const Score = connect(
   ({ splash, score }) => Immutable({ splash, score: Math.floor(score) })
 )(
   ({ splash, score }) => (
-    <Text style={styles.score}>
+    <Text
+      key="score-text"
+      style={styles.score}>
       {splash ? '' : score}
     </Text>
   )
@@ -239,16 +244,19 @@ const Splash = connect(
 )(
   ({ splash }) => {
     if (!splash) {
-      return <View>{null}</View>;
+      return <View key="splash-empty">{null}</View>;
     }
 
     const w = 398, h = 202;
     return (
-      <Image style={{ position: 'absolute',
+      <Image
+        key="splash-image"
+        style={{ position: 'absolute',
                       left: (SCREEN_WIDTH - w) / 2, top: 100,
                       width: w, height: h,
                       backgroundColor: 'transparent' }}
-        source={{ uri: 'http://i.imgur.com/kgJfxjH.png' }}/>
+        source={{ uri: 'http://i.imgur.com/kgJfxjH.png' }}
+      />
     );
   }
 );
@@ -295,7 +303,9 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
 };
 
 const Scene = () => (
-  <View style={[styles.container, { backgroundColor: '#F5FCFF' }]}>
+  <View
+    key="scene-container"
+    style={[styles.container, { backgroundColor: '#F5FCFF' }]}>
     <Pipes />
     <Bird />
     <Score />
