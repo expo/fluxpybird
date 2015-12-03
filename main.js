@@ -35,6 +35,7 @@ const Touch = connect()(
       onPanResponderGrant: panGrant,
       onPanResponderRelease: panRelease,
       onPanResponderTerminate: panRelease,
+      onShouldBlockNativeResponder: () => false,
     });
 
     return (
