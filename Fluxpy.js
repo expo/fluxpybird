@@ -12,6 +12,12 @@ import { connect } from 'react-redux/native';
 import Dimensions from 'Dimensions';
 import Immutable from 'seamless-immutable';
 
+
+import { registerEval } from './REPL';
+
+registerEval('Fluxpy', (c) => eval(c));
+
+
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 

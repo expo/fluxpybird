@@ -10,6 +10,12 @@ const {
 import { connect, Provider } from 'react-redux/native';
 import { createStore } from 'redux';
 
+
+import { registerEval, flushEvalInQueue } from './REPL';
+
+registerEval('main', (c) => eval(c));
+
+
 // Import from a different module for a different game!
 import { sceneReduce, Scene } from './Fluxpy';
 
