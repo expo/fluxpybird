@@ -17,6 +17,9 @@ http.listen(5000, function() {
 });
 
 
+var context = 'main';
+
+
 var rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -24,9 +27,12 @@ var rl = readline.createInterface({
 });
 
 rl.on('line', function(line) {
-  var module = 'Fluxpy';
+  if (line.startsWith(':context ')) {
+    context = line.split(' ')[1];
+    return;
+  }
 
-  var filename = module + '.js';
+  var filename = context + '.js';
   var transformed = babel.transform(line, {
     retainLines: true,
     compact: true,
@@ -53,10 +59,10 @@ rl.on('line', function(line) {
       'regenerator',
     ],
     plugins: [],
-    sourceFileName: 'Fluxpy.js',
+    sourceFileName: filename,
     sourceMaps: false,
     extra: {},
   });
 
-  io.emit('evalIn', { contextName: 'Fluxpy', code: transformed.code });
+  io.emit('evalIn', { contextName: context, code: transformed.code });
 });
