@@ -45,9 +45,9 @@ const queueEvalIn = (contextName, code) => {
  * Usually you want to call this once each `'TICK'`.
  */
 const flushEvalInQueue = () => {
-  for (const { module, code } of evalInQueue) {
+  evalInQueue.forEach(({ module, code}) => {
     console.log(`= ${window.evalIn(module, code)}`);
-  }
+  });
   evalInQueue.length = 0;
 };
 
