@@ -1,4 +1,6 @@
-![Fun!](http://g.recordit.co/8YFrjN05lG.gif)
+<p align="center">
+  <img src="http://g.recordit.co/8YFrjN05lG.gif" alt=Fun!"/>
+</p>
 
 This is a game written with [exponent](http://exponentjs.com/), [react-native](https://facebook.github.io/react-native/) and [redux](https://github.com/rackt/redux).
 
