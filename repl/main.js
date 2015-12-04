@@ -8,12 +8,14 @@ var readline = require('readline');
 
 io.on('connection', function(socket) {
   socket.on('evalResult', function(msg) {
-    console.log('= ' + msg.result);
+    console.log('= ' + msg.result + '\n');
+    rl.prompt();
   });
+  rl.prompt();
 });
 
 http.listen(5000, function() {
-  console.log('listening on *:5000');
+  console.log('listening on *:5000\n');
 });
 
 
@@ -23,12 +25,13 @@ var context = 'main';
 var rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
-  terminal: true,
 });
 
 rl.on('line', function(line) {
   if (line.startsWith(':context ')) {
     context = line.split(' ')[1];
+    console.log('context is now \'' + context + '\'\n');
+    rl.prompt();
     return;
   }
 
