@@ -2,7 +2,9 @@
 
 // Need this to make ''socket.io-client' work
 // http://browniefed.com/blog/2015/05/16/react-native-and-socket-dot-io/
-window.navigator.userAgent = 'react-native';
+if (!window.navigator.userAgent) {
+  window.navigator.userAgent = 'react-native';
+}
 const io = require('socket.io-client/socket.io');
 
 
