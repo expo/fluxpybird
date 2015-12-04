@@ -1,5 +1,11 @@
 'use strict';
 
+// Need this to make ''socket.io-client' work
+// http://browniefed.com/blog/2015/05/16/react-native-and-socket-dot-io/
+window.navigator.userAgent = 'react-native';
+const io = require('socket.io-client/socket.io');
+
+
 const evalMap = {};
 
 /*
@@ -51,11 +57,26 @@ const flushEvalInQueue = () => {
   evalInQueue.length = 0;
 };
 
+/*
+ * Connect to the REPL server.
+ */
+const connect = (url = 'http://localhost:5000') => {
+  const socket = io(url);
+
+  socket.on('evalIn', ({ contextName, code }) => {
+    console.log(`evalIn: '${contextName}', "${code}"`);
+    socket.emit('evalResult', {
+      result: evalIn(contextName, code),
+    });
+  });
+};
+
 const repl = {
   evalIn,
   queueEvalIn,
   registerEval,
   flushEvalInQueue,
+  connect,
 };
 
 window.repl = repl;

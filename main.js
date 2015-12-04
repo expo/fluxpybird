@@ -11,9 +11,9 @@ import { connect, Provider } from 'react-redux/native';
 import { createStore } from 'redux';
 
 
-import { registerEval, flushEvalInQueue } from './REPL';
+import REPL from './REPL';
 
-registerEval('main', (c) => eval(c));
+REPL.registerEval('main', (c) => eval(c));
 
 
 // Import from a different module for a different game!
@@ -127,7 +127,7 @@ const queueDispatch = (action) => dispatchQueue.push(action);
 
 const mainReduce = (state, action) => {
   if (action.type === 'TICK') {
-    flushEvalInQueue();
+    REPL.flushEvalInQueue();
   }
 
   const actions = [action].concat(dispatchQueue);
@@ -140,6 +140,8 @@ const mainReduce = (state, action) => {
 };
 
 const Main = () => {
+  REPL.connect();
+
   const store = createStore(mainReduce,
                             mainReduce(undefined, { type: 'START' }));
   return (
