@@ -63,7 +63,7 @@ const flushEvalInQueue = () => {
  * Connect to the REPL server.
  */
 const connect = (url = 'http://localhost:5000') => {
-  const socket = io(url);
+  const socket = io(url, { jsonp: false });
 
   socket.on('evalIn', ({ contextName, code }) => {
     console.log(`evalIn: '${contextName}', "${code}"`);
