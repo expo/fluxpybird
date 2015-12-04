@@ -1,17 +1,17 @@
 'use strict';
 
-import React from 'react-native';
+const React = require('react-native');
 const {
   AppRegistry,
   PanResponder,
   View,
 } = React;
 
-import { connect, Provider } from 'react-redux/native';
-import { createStore } from 'redux';
+const { connect, Provider } = require('react-redux/native');
+const { createStore } = require('redux');
 
 
-import REPL from './REPL';
+const REPL = require('./REPL');
 
 REPL.registerEval('main', (c) => eval(c));
 

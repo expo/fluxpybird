@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react-native';
+const React = require('react-native');
 const {
   Image,
   StyleSheet,
@@ -8,14 +8,14 @@ const {
   View,
 } = React;
 
-import { connect } from 'react-redux/native';
-import Dimensions from 'Dimensions';
-import Immutable from 'seamless-immutable';
+const { connect } = require('react-redux/native');
+const Dimensions = require('Dimensions');
+const Immutable = require('seamless-immutable');
 
 
-import { registerEval } from './REPL';
+const REPL = require('./REPL');
 
-registerEval('Fluxpy', (c) => eval(c));
+REPL.registerEval('Fluxpy', (c) => eval(c));
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -36,6 +36,9 @@ const defaultReducer = (reductions) => (state, action, ...rest) => (
  *
  * Bird's (x, y) is position of its center
  */
+
+const BIRD_FREQ = 1.2;
+const BIRD_AMP = 140;
 
 const birdReduce = defaultReducer({
   START() {
@@ -74,7 +77,7 @@ const birdReduce = defaultReducer({
     let vx = bird.vx;
     let vy = bird.vy;
     if (splash) {
-      vy = 140 * Math.sin(1.2 * Math.PI * bird.time);
+      vy = BIRD_AMP * Math.sin(BIRD_FREQ * Math.PI * bird.time);
     } else if (die) {
       vy = -150;
     } else {
