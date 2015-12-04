@@ -8,14 +8,14 @@ var readline = require('readline');
 
 io.on('connection', function(socket) {
   socket.on('evalResult', function(msg) {
-    console.log('= ' + msg.result + '\n');
+    console.log('= ' + msg.result);
     rl.prompt();
   });
   rl.prompt();
 });
 
 http.listen(5000, function() {
-  console.log('listening on *:5000\n');
+  console.log('listening on *:5000');
 });
 
 
@@ -30,7 +30,7 @@ var rl = readline.createInterface({
 rl.on('line', function(line) {
   if (line.startsWith(':context ')) {
     context = line.split(' ')[1];
-    console.log('context is now \'' + context + '\'\n');
+    console.log('context is now \'' + context + '\'');
     rl.prompt();
     return;
   }
