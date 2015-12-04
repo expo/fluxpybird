@@ -1,7 +1,5 @@
 ![Fun!](http://g.recordit.co/8YFrjN05lG.gif)
 
-# Floaty Plane
-
 This is a game written with [exponent](http://exponentjs.com/), [react-native](https://facebook.github.io/react-native/) and [redux](https://github.com/rackt/redux).
 
 Here are a few quick notes. I'll write a longer blog post soon explaining in more detail!
