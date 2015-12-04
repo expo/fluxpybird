@@ -298,7 +298,7 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
 
     case 'TOUCH':
       newState = newState.merge({
-        splash: false,
+        splash: state.splash && !action.pressed,
         reverse: action.pressed && !state.bird.alive,
       });
       break;
