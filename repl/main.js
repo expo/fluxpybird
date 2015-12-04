@@ -8,7 +8,12 @@ var readline = require('readline');
 
 io.on('connection', function(socket) {
   socket.on('evalResult', function(msg) {
-    console.log('= ' + msg.result);
+    if (msg.result) {
+      console.log('= ' + msg.result);
+    }
+    if (msg.error) {
+      console.log('! ' + msg.error);
+    }
     rl.prompt();
   });
   rl.prompt();

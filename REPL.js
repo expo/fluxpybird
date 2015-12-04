@@ -65,9 +65,15 @@ const connect = (url = 'http://localhost:5000') => {
 
   socket.on('evalIn', ({ contextName, code }) => {
     console.log(`evalIn: '${contextName}', "${code}"`);
-    socket.emit('evalResult', {
-      result: evalIn(contextName, code),
-    });
+
+    let result;
+    let error;
+    try {
+      result = evalIn(contextName, code);
+    } catch(ex) {
+      error = ex.toString();
+    }
+    socket.emit('evalResult', { result, error });
   });
 };
 
