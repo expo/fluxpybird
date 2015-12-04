@@ -261,9 +261,9 @@ const Splash = connect(
       <Image
         key="splash-image"
         style={{ position: 'absolute',
-                      left: (SCREEN_WIDTH - w) / 2, top: 100,
-                      width: w, height: h,
-                      backgroundColor: 'transparent' }}
+                 left: (SCREEN_WIDTH - w) / 2, top: 100,
+                 width: w, height: h,
+                 backgroundColor: 'transparent' }}
         source={{ uri: 'http://i.imgur.com/kgJfxjH.png' }}
       />
     );
