@@ -121,8 +121,17 @@ const Game = () => (
  * Initializes a Redux store and provides it to Game.
  */
 
+const dispatchQueue = [];
+
+const queueDispatch = (action) => dispatchQueue.push(action);
+
 const mainReduce = (state, action) => {
-  const actions = [action];
+  if (action.type === 'TICK') {
+    flushEvalInQueue();
+  }
+
+  const actions = [action].concat(dispatchQueue);
+  dispatchQueue.length = 0;
   const dispatch = (action) => actions.push(action);
   while (actions.length > 0) {
     state = sceneReduce(state, actions.shift(), dispatch);
