@@ -77,7 +77,6 @@ const birdReduce = defaultReducer({
       }
     }
 
-    let vx = bird.vx;
     let vy = bird.vy;
     if (GHOST || splash) {
       vy = BIRD_AMP * Math.sin(BIRD_FREQ * Math.PI * bird.time);
