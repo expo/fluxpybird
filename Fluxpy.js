@@ -175,9 +175,9 @@ const pipesReduce = defaultReducer({
 
     let cursorV = Math.random() * (pipes.cursorDir ? 1 : -1) * 220;
     let cursorDir;
-    if (pipes.cursor < 100) {
+    if (pipes.cursor < 40) {
       cursorDir = true;
-    } else if (pipes.cursor > SCREEN_HEIGHT - 400) {
+    } else if (pipes.cursor > SCREEN_HEIGHT - 340) {
       cursorDir = false;
     } else {
       cursorDir = (pipes.cursorFlipTime < 0 ?
