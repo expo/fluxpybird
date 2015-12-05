@@ -52,7 +52,7 @@ const birdReduce = defaultReducer({
       y: SCREEN_HEIGHT / 2,
       w: 41, h: 29,
       vx: 110, vy: 0,
-      ay: 700,
+      ay: 700, ax: 9,
     });
   },
 
@@ -84,7 +84,6 @@ const birdReduce = defaultReducer({
     } else if (die) {
       vy = -150;
     } else {
-      vx += 9 * dt;
       vy += bird.ay * dt;
     }
 
@@ -92,7 +91,12 @@ const birdReduce = defaultReducer({
       time: bird.time + dt,
       alive: bird.alive && !die,
       y: bird.y + bird.vy * dt,
-      vx, vy,
+      x: bird.alive ? bird.x : bird.x - 0.5 * bird.vx * dt,
+      vx: splash ? bird.vx : Math.max(0, bird.vx + bird.ax * dt),
+      vy,
+      ax: (die ?
+           Math.min(-bird.vx / 2, -0.25 * bird.vx * bird.vx / (bird.x - bird.w)) :
+           bird.ax),
       ay: die ? 700 : bird.ay,
     });
   },
