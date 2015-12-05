@@ -144,6 +144,9 @@ const defaultPipe = {
 const pipesReduce = defaultReducer({
   START() {
     return Immutable({
+      cursor: 100,
+      cursorDir: Math.random() < 0.5,
+      cursorFlipTime: Math.random(),
       distance: 120,
       pipes: [],
     });
@@ -153,10 +156,30 @@ const pipesReduce = defaultReducer({
     if (splash) {
       return pipes;
     }
+
     if (pipes.distance < 0) {
       dispatch({ type: 'ADD_PIPES' });
     }
+
+    let cursorV = Math.random() * (pipes.cursorDir ? 1 : -1) * 220;
+    let cursorDir;
+    if (pipes.cursor < 100) {
+      cursorDir = true;
+    } else if (pipes.cursor > SCREEN_HEIGHT - 400) {
+      cursorDir = false;
+    } else {
+      cursorDir = (pipes.cursorFlipTime < 0 ?
+                   !pipes.cursorDir :
+                   pipes.cursorDir);
+    }
+
     return pipes.merge({
+      cursor: (pipes.cursor + cursorV * dt),
+      cursorFlipTime: (pipes.cursorFlipTime < 0 ?
+                       2.2 * Math.random() :
+                       pipes.cursorFlipTime - dt),
+      cursorDir,
+
       distance: (pipes.distance < 0 ?
                  240 * Math.random() + 70 :
                  pipes.distance - bird.vx * dt),
@@ -169,7 +192,7 @@ const pipesReduce = defaultReducer({
 
   ADD_PIPES({ pipes }) {
     const gap = 200 + 100 * Math.random();
-    const top = 100 + (SCREEN_HEIGHT - 500) * Math.random();
+    const top = pipes.cursor + 100 * Math.random();
     return pipes.merge({
       pipes: pipes.pipes.concat([
         { ...defaultPipe, y: top, bottom: false },
@@ -185,13 +208,21 @@ const pipesReduce = defaultReducer({
 
 let maxNumPipes = 10;
 const Pipes = connect(
-  ({ pipes: { pipes } }) => Immutable({ pipes })
+  ({ pipes: { cursor, pipes } }) => Immutable({ cursor, pipes })
 )(
-  ({ pipes }) => {
+  ({ cursor, pipes }) => {
     // Ensure a constant-ish number of components by rendering extra
     // off-screen pipes
     let key = 0;
     maxNumPipes = Math.max(maxNumPipes, pipes.length);
+//    let cursor = (
+//      <View
+//        style={{ position: 'absolute',
+//                 left: SCREEN_WIDTH - 40,
+//                 top: cursor - 10,
+//                 width: 20, height: 20,
+//                 backgroundColor: '#f00' }} />
+//    );
     return (
       <View
         key="pipes-container"
