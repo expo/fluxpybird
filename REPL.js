@@ -62,7 +62,7 @@ const flushEvalInQueue = () => {
 /*
  * Connect to the REPL server.
  */
-const connect = (url = 'http://localhost:5000') => {
+const connect = (url = 'http://nikhileshs-air.local:5000') => {
   const socket = io(url, { jsonp: false });
 
   socket.on('evalIn', ({ contextName, code }) => {

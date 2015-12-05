@@ -1,5 +1,7 @@
 'use strict';
 
+var fs = require('fs');
+
 var http = require('http').createServer();
 var io = require('socket.io')(http);
 var babel = require('babel-core');
@@ -26,22 +28,9 @@ http.listen(5000, function() {
 
 var context = 'main';
 
-
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-rl.on('line', function(line) {
-  if (line.startsWith(':context ')) {
-    context = line.split(' ')[1];
-    console.log('context is now \'' + context + '\'');
-    rl.prompt();
-    return;
-  }
-
+function transform(code) {
   var filename = context + '.js';
-  var transformed = babel.transform(line, {
+  var transformed = babel.transform(code, {
     retainLines: true,
     compact: true,
     comments: false,
@@ -72,5 +61,35 @@ rl.on('line', function(line) {
     extra: {},
   });
 
-  io.emit('evalIn', { contextName: context, code: transformed.code });
+  var noDecls = transformed.code.replace(/^ *var /, '');
+
+  return noDecls;
+}
+
+
+var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+rl.on('line', function(line) {
+  if (line.startsWith(':context ')) {
+    context = line.split(' ')[1];
+    console.log('context is now \'' + context + '\'');
+    rl.prompt();
+    return;
+  }
+
+  io.emit('evalIn', { contextName: context, code: transform(line) });
+});
+
+
+fs.watchFile('scratch.js', function(curr) {
+  console.log(':run scratch.js');
+  fs.readFile('scratch.js', function(err, data) {
+    if (err) {
+      throw err;
+    }
+    io.emit('evalIn', { contextName: context, code: transform(data) });
+  });
 });
