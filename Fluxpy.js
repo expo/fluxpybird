@@ -144,6 +144,15 @@ const defaultPipe = {
   bottom: false,
 };
 
+const pipeImgs = [
+  'http://i.imgur.com/4n2WHCE.png',
+  'http://i.imgur.com/bQpVtG7.png',
+];
+
+const pickPipeImg = () => (
+  pipeImgs[Math.floor(pipeImgs.length * Math.random())]
+);
+
 const pipesReduce = defaultReducer({
   START() {
     return Immutable({
@@ -197,8 +206,8 @@ const pipesReduce = defaultReducer({
     const top = pipes.cursor + 100 * Math.random();
     return pipes.merge({
       pipes: pipes.pipes.concat([
-        { ...defaultPipe, y: top, bottom: false },
-        { ...defaultPipe, y: top + gap, bottom: true },
+        { ...defaultPipe, y: top, bottom: false, img: pickPipeImg() },
+        { ...defaultPipe, y: top + gap, bottom: true, img: pickPipeImg() },
       ]),
     });
   },
@@ -208,23 +217,23 @@ const pipesReduce = defaultReducer({
   },
 });
 
-let maxNumPipes = 10;
+// Ensure a constant-ish number of components by rendering extra
+// off-screen pipes
+let maxNumPipes = pipeImgs.reduce((o, img) => ({ ...o, [img]: 5 }), {});
 const Pipes = connect(
   ({ pipes: { cursor, pipes } }) => Immutable({ cursor, pipes })
 )(
   ({ cursor, pipes }) => {
-    // Ensure a constant-ish number of components by rendering extra
-    // off-screen pipes
-    let key = 0;
-    maxNumPipes = Math.max(maxNumPipes, pipes.length);
-//    let cursor = (
-//      <View
-//        style={{ position: 'absolute',
-//                 left: SCREEN_WIDTH - 40,
-//                 top: cursor - 10,
-//                 width: 20, height: 20,
-//                 backgroundColor: '#f00' }} />
-//    );
+    const numPipes = pipes.reduce((o, { img }) => (
+      { ...o, [img]: o[img] ? o[img] + 1 : 1 }
+    ), {});
+    const extraPipes = pipeImgs.reduce((a, img) => {
+      maxNumPipes[img] = Math.max(maxNumPipes[img], numPipes[img] || 0);
+      return a.concat(Array(maxNumPipes[img] - (numPipes[img] || 0)).fill(
+        { ...defaultPipe, img }
+      ));
+    }, []);
+    const keys = pipeImgs.reduce((o, img) => ({ ...o, [img]: 0 }), {});
     return (
       <View
         key="pipes-container"
@@ -232,15 +241,15 @@ const Pipes = connect(
         {
           [
             ...pipes,
-            ...Array(maxNumPipes - pipes.length).fill(defaultPipe),
-          ].map(({ x, y, w, h, bottom}) => (
+            ...extraPipes,
+          ].map(({ x, y, w, h, bottom, img }) => (
             <Image
-              key={`pipe-image-${key++}`}
+              key={`pipe-image-${img}-${keys[img]++}`}
               style={{ position: 'absolute',
                        left: x, top: bottom ? y : y - h,
                        width: w, height: h,
                        backgroundColor: 'transparent' }}
-              source={{ uri: 'http://i.imgur.com/bQpVtG7.png' }}
+              source={{ uri: img }}
             />
           ))
         }
