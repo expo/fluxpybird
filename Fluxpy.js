@@ -41,6 +41,8 @@ const defaultReducer = (reductions) => (state, action, ...rest) => (
 const BIRD_FREQ = 1.2;
 const BIRD_AMP = 140;
 
+let GHOST = false;
+
 const birdReduce = defaultReducer({
   START() {
     return Immutable({
@@ -60,7 +62,7 @@ const birdReduce = defaultReducer({
       if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
         die = true;
       }
-      if (pipes.some(({ x, y, w, bottom }) => (
+      if (!GHOST && pipes.some(({ x, y, w, bottom }) => (
         x + w > bird.x - bird.w / 2 &&
         x < bird.x + bird.w / 2 &&
         (bottom ?
@@ -77,7 +79,7 @@ const birdReduce = defaultReducer({
 
     let vx = bird.vx;
     let vy = bird.vy;
-    if (splash) {
+    if (GHOST || splash) {
       vy = BIRD_AMP * Math.sin(BIRD_FREQ * Math.PI * bird.time);
     } else if (die) {
       vy = -150;
