@@ -11,3 +11,9 @@ Here are a few quick notes. I'll write a longer blog post soon explaining in mor
 3. The game has time travel. Redux makes this easy. After you lose, if the plane is still on screen, a touch makes the game start going backwards in time (a quick peek of that in the GIF image above). Sort of like Braid.
 4. I tried to be super modern and used stateless function components and nice destructuring etc. everywhere.
 5. You can queue dispatches from within reducers. Reducers get their usual `state, actions` parameter but also a `dispatch` parameter which queues actions to be performed after the current action is fully reduced. Used [here](https://github.com/exponentjs/fluxpybird/blob/e50dd2191b77f0b8b3bbceb6a61498581ae1e668/Fluxpy.js#L154) for example to queue an `ADD_PIPES` action (handler visible a few lines of code below) when the distance to the next pair of pipes is `< 0`.
+
+## Art Sources
+
+- Plane: http://www.spriters-resource.com/arcade/ms/
+- Clouds: http://rebloggy.com/post/cute-sky-clouds-storm-pixel-art-pixel-pixels-tranparent/88710091972
+- Pillars: http://www.nintendolife.com/forums/general_discussion/pixelartany_art?start=2300
