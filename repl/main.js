@@ -8,10 +8,19 @@ var babel = require('babel-core');
 var readline = require('readline');
 
 
+function pretty(msg) {
+  if (typeof msg === 'string') {
+    return msg;
+  } else {
+    return JSON.stringify(msg, null, 2);
+  }
+}
+
+
 io.on('connection', function(socket) {
   socket.on('evalResult', function(msg) {
     if (msg.result) {
-      console.log('= ' + msg.result);
+      console.log('= ' + pretty(msg.result));
     }
     if (msg.error) {
       console.log('! ' + msg.error);
@@ -19,7 +28,7 @@ io.on('connection', function(socket) {
     rl.prompt();
   });
   socket.on('log', function(msg) {
-    console.log('~ ' + msg);
+    console.log('~ ' + pretty(msg));
     rl.prompt();
   });
   rl.prompt();
