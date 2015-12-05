@@ -183,8 +183,7 @@ const pipesReduce = defaultReducer({
       distance: (pipes.distance < 0 ?
                  240 * Math.random() + 70 :
                  pipes.distance - bird.vx * dt),
-      pipes: pipes.pipes.map((pipe) => ({
-        ...pipe,
+      pipes: pipes.pipes.map((pipe) => pipe.merge({
         x: pipe.x - bird.vx * dt,
       })).filter((pipe) => pipe.x + pipe.w > 0),
     });
