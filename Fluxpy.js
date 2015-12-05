@@ -11,6 +11,7 @@ const {
 const { connect } = require('react-redux/native');
 const Dimensions = require('Dimensions');
 const Immutable = require('seamless-immutable');
+const WithCustomFont = require('@exponent/with-custom-font');
 
 
 const REPL = require('./REPL');
@@ -231,16 +232,30 @@ const scoreReduce = defaultReducer({
   },
 });
 
+const WithScoreFont = WithCustomFont.createCustomFontComponent({
+  uri: 'https://dl.dropboxusercontent.com/u/535792/exponent/floaty-font.ttf',
+});
+
 const Score = connect(
   ({ splash, score }) => Immutable({ splash, score: Math.floor(score) })
 )(
-  ({ splash, score }) => (
-    <Text
-      key="score-text"
-      style={styles.score}>
-      {splash ? '' : score}
-    </Text>
-  )
+  ({ splash, score }) => {
+    if (splash) {
+      return <View>{null}</View>;
+    }
+
+    return (
+      <WithScoreFont>
+        <View style={styles.scoreContainer}>
+          <Text
+            key="score-text"
+            style={styles.score}>
+            {score}
+          </Text>
+        </View>
+      </WithScoreFont>
+    );
+  }
 );
 
 
@@ -328,13 +343,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  score: {
+  scoreContainer: {
     position: 'absolute',
-    left: 20,
-    top: 20,
-    color: '#ff0000',
-    fontSize: 24,
+    top: 42,
+    left: 30,
+    paddingRight: 2,
+    paddingLeft: 5,
+    paddingTop: 2,
+    backgroundColor: '#363029',
+  },
+  score: {
+    color: '#fcfaf8',
+    fontSize: 33,
+    fontFamily: '04b_19',
     backgroundColor: 'transparent',
+    margin: -1,
   },
 });
 
