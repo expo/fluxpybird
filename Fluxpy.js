@@ -324,7 +324,7 @@ const cloudReduce = defaultReducer({
       clouds: cloudImgs.map((img) => ({
         x: SCREEN_WIDTH * 3 * Math.random(),
         y: SCREEN_HEIGHT * Math.random() - CLOUD_HEIGHT / 2,
-        vxFactor: 0.2 + 0.2 * Math.random(),
+        vxFactor: 0.1 + 0.2 * Math.random(),
         img,
       })),
     });
@@ -335,7 +335,7 @@ const cloudReduce = defaultReducer({
       clouds: clouds.clouds.map((cloud) => {
         if (cloud.x + CLOUD_WIDTH > 0) {
           return cloud.merge({
-            x: cloud.x - cloud.vxFactor * bird.vx * dt,
+            x: cloud.x - cloud.vxFactor * (bird.vx + 65) * dt,
           });
         }
         return cloud.merge({
