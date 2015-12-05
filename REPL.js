@@ -62,8 +62,9 @@ const flushEvalInQueue = () => {
 /*
  * Connect to the REPL server.
  */
+let socket;
 const connect = (url = 'http://nikhileshs-air.local:5000') => {
-  const socket = io(url, { jsonp: false });
+  socket = io(url, { jsonp: false });
 
   socket.on('evalIn', ({ contextName, code }) => {
     console.log(`evalIn: '${contextName}', "${code}"`);
@@ -79,12 +80,20 @@ const connect = (url = 'http://nikhileshs-air.local:5000') => {
   });
 };
 
+/*
+ * Log to the REPL server.
+ */
+const log = (obj) => {
+  socket.emit('log', obj);
+};
+
 const repl = {
   evalIn,
   queueEvalIn,
   registerEval,
   flushEvalInQueue,
   connect,
+  log,
 };
 
 window.repl = repl;

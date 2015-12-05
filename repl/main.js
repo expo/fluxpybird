@@ -18,6 +18,10 @@ io.on('connection', function(socket) {
     }
     rl.prompt();
   });
+  socket.on('log', function(msg) {
+    console.log('~ ' + msg);
+    rl.prompt();
+  });
   rl.prompt();
 });
 
@@ -60,10 +64,7 @@ function transform(code) {
     sourceMaps: false,
     extra: {},
   });
-
-  var noDecls = transformed.code.replace(/^ *var /, '');
-
-  return noDecls;
+  return transformed.code;
 }
 
 
