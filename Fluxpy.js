@@ -293,6 +293,80 @@ const Score = connect(
 
 
 /**
+ * Clouds
+ */
+
+const cloudImgs = [
+  'http://i.imgur.com/ikAxUM8.png',
+  'http://i.imgur.com/kN1B1vE.png',
+  'http://i.imgur.com/BvYFVgj.png',
+  'http://i.imgur.com/8asAfkz.png',
+];
+
+const CLOUD_WIDTH = 283;
+const CLOUD_HEIGHT = 142;
+
+const cloudReduce = defaultReducer({
+  START() {
+    return Immutable({
+      clouds: cloudImgs.map((img) => ({
+        x: SCREEN_WIDTH * 3 * Math.random(),
+        y: SCREEN_HEIGHT * Math.random() - CLOUD_HEIGHT / 2,
+        vxFactor: 0.2 + 0.2 * Math.random(),
+        img,
+      })),
+    });
+  },
+
+  TICK({ bird, clouds }, { dt }, dispatch) {
+    return clouds.merge({
+      clouds: clouds.clouds.map((cloud) => {
+        if (cloud.x + CLOUD_WIDTH > 0) {
+          return cloud.merge({
+            x: cloud.x - cloud.vxFactor * bird.vx * dt,
+          });
+        }
+        return cloud.merge({
+          x: SCREEN_WIDTH * (1 + Math.random()),
+          y: SCREEN_HEIGHT * Math.random() - CLOUD_HEIGHT / 2,
+          vxFactor: 0.2 + 0.2 * Math.random(),
+        });
+      }),
+    });
+  },
+
+  DEFAULT({ clouds }) {
+    return clouds;
+  },
+});
+
+const Clouds = connect(
+  ({ clouds: { clouds }}) => Immutable({ clouds })
+)(
+  ({ clouds }) => {
+    return (
+      <View
+        key="clouds-container"
+        style={styles.container}>
+        {
+          clouds.asMutable().map(({ x, y, img }) => (
+            <Image
+              key={`cloud-image-${img}`}
+              style={{ position: 'absolute',
+                       left: x, top: y,
+                       width: CLOUD_WIDTH, height: CLOUD_HEIGHT,
+                       backgroundColor: 'transparent' }}
+              source={{ uri: img }}
+            />
+          ))
+        }
+      </View>
+    );
+  }
+);
+
+
+/**
  * Splash
  */
 
@@ -356,6 +430,7 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
     bird: birdReduce(state, action, dispatch),
     pipes: pipesReduce(state, action, dispatch),
     score: scoreReduce(state, action, dispatch),
+    clouds: cloudReduce(state, action, dispatch),
   });
 };
 
@@ -363,6 +438,7 @@ const Scene = () => (
   <View
     key="scene-container"
     style={[styles.container, { backgroundColor: '#F5FCFF' }]}>
+    <Clouds />
     <Pipes />
     <Bird />
     <Score />
