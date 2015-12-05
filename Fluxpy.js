@@ -232,7 +232,8 @@ const Pipes = connect(
             ...pipes,
             ...Array(maxNumPipes - pipes.length).fill(defaultPipe),
           ].map(({ x, y, w, h, bottom}) => (
-            <Image key={`pipe-image-${key++}`}
+            <Image
+              key={`pipe-image-${key++}`}
               style={{ position: 'absolute',
                        left: x, top: bottom ? y : y - h,
                        width: w, height: h,
