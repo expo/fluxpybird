@@ -137,7 +137,7 @@ const Bird = connect(
 
 const defaultPipe = {
   x: SCREEN_WIDTH + 2, y: -2,
-  w: 60, h: 800,
+  w: 58, h: 800,
   bottom: false,
 };
 
@@ -237,7 +237,7 @@ const Pipes = connect(
                        left: x, top: bottom ? y : y - h,
                        width: w, height: h,
                        backgroundColor: 'transparent' }}
-              source={{ uri: 'http://i.imgur.com/rXhKHaH.png' }}
+              source={{ uri: 'http://i.imgur.com/bQpVtG7.png' }}
             />
           ))
         }
