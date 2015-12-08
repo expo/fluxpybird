@@ -86,7 +86,7 @@ class Clock extends React.Component {
   _tick() {
     this._tickRequestID = undefined;
     const currTime = Date.now();
-    this.tick(0.001 * (currTime - this._lastTickTime));
+    this.tick(Math.min(0.05, 0.001 * (currTime - this._lastTickTime)));
     this._lastTickTime = currTime;
     this._requestTick();
   }
