@@ -268,7 +268,7 @@ const pipesReduce = defaultReducer({
 
 // Ensure a constant-ish number of components by rendering extra
 // off-screen pipes
-let maxNumPipes = pipeImgs.reduce((o, img) => ({ ...o, [img]: 5 }), {});
+let maxNumPipes = pipeImgs.reduce((o, img) => ({ ...o, [img]: 10 }), {});
 const Pipes = connect(
   ({ pipes: { cursor, pipes } }) => Immutable({ cursor, pipes })
 )(
