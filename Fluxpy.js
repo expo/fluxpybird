@@ -2,6 +2,7 @@
 
 const React = require('react-native');
 const {
+  Animated,
   Image,
   StyleSheet,
   Text,
@@ -154,6 +155,12 @@ const pickPipeImg = () => (
   pipeImgs[Math.floor(pipeImgs.length * Math.random())]
 );
 
+let _guid = 0;
+function getGUID() {
+  _guid++;
+  return `__${_guid}`
+}
+
 const pipesReduce = defaultReducer({
   START() {
     return Immutable({
@@ -207,8 +214,8 @@ const pipesReduce = defaultReducer({
     const top = pipes.cursor + 100 * Math.random();
     return pipes.merge({
       pipes: pipes.pipes.concat([
-        { ...defaultPipe, y: top, bottom: false, img: pickPipeImg() },
-        { ...defaultPipe, y: top + gap, bottom: true, img: pickPipeImg() },
+        { ...defaultPipe, y: top, bottom: false, img: pickPipeImg(), guid: getGUID() },
+        { ...defaultPipe, y: top + gap, bottom: true, img: pickPipeImg(), guid: getGUID() },
       ]),
     });
   },
@@ -218,46 +225,110 @@ const pipesReduce = defaultReducer({
   },
 });
 
+class PipeImage extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      x: new Animated.Value(this.props.x),
+      top: new Animated.Value(this.props.top),
+      width: new Animated.Value(this.props.width),
+      height: new Animated.Value(this.props.height),
+    };
+  }
+
+  componentWillReceiveProps({x, top, width, height}) {
+    this.state.x.setValue(x);
+    this.state.top.setValue(top);
+    this.state.width.setValue(width);
+    this.state.height.setValue(height);
+  }
+
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.img !== this.props.img) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  render() {
+    let { x, top, width, height } = this.state;
+    let { img } = this.props;
+
+    return (
+      <Animated.Image
+        style={{ position: 'absolute',
+                 left: x, top, width, height,
+                 backgroundColor: 'transparent' }}
+        source={{ uri: img }}
+      />
+    );
+  }
+
+}
+
+
 // Ensure a constant-ish number of components by rendering extra
 // off-screen pipes
 let maxNumPipes = pipeImgs.reduce((o, img) => ({ ...o, [img]: 5 }), {});
-const Pipes = connect(
-  ({ pipes: { cursor, pipes } }) => Immutable({ cursor, pipes })
-)(
-  ({ cursor, pipes }) => {
-    const numPipes = pipes.reduce((o, { img }) => (
-      { ...o, [img]: o[img] ? o[img] + 1 : 1 }
-    ), {});
-    const extraPipes = pipeImgs.reduce((a, img) => {
-      maxNumPipes[img] = Math.max(maxNumPipes[img], numPipes[img] || 0);
-      return a.concat(Array(maxNumPipes[img] - (numPipes[img] || 0)).fill(
-        { ...defaultPipe, img }
-      ));
-    }, []);
-    const keys = pipeImgs.reduce((o, img) => ({ ...o, [img]: 0 }), {});
-    return (
-      <View
-        key="pipes-container"
-        style={styles.container}>
-        {
-          [
-            ...pipes,
-            ...extraPipes,
-          ].map(({ x, y, w, h, bottom, img }) => (
-            <Image
-              key={`pipe-image-${img}-${keys[img]++}`}
-              style={{ position: 'absolute',
-                       left: x, top: bottom ? y : y - h,
-                       width: w, height: h,
-                       backgroundColor: 'transparent' }}
-              source={{ uri: img }}
-            />
-          ))
-        }
-      </View>
-    );
-  }
-);
+let Pipes = ({ cursor, pipes }) => {
+
+  let beforeDate = new Date();
+
+  const numPipes = pipes.reduce((o, { img }) => (
+    { ...o, [img]: o[img] ? o[img] + 1 : 1 }
+  ), {});
+
+  console.log('numPipes calc: ' + ((new Date()) - beforeDate).toString() + 'ms');
+
+  beforeDate = new Date();
+
+  const extraPipes = pipeImgs.reduce((a, img) => {
+    maxNumPipes[img] = Math.max(maxNumPipes[img], numPipes[img] || 0);
+    return a.concat(Array(maxNumPipes[img] - (numPipes[img] || 0)).fill(
+      { ...defaultPipe, img }
+    ));
+  }, []);
+
+  console.log('extraPipes calc: ' + ((new Date()) - beforeDate).toString() + 'ms');
+
+
+  beforeDate = new Date();
+  const keys = pipeImgs.reduce((o, img) => ({ ...o, [img]: 0 }), {});
+  console.log('keys calc: ' + ((new Date()) - beforeDate).toString() + 'ms');
+
+
+  beforeDate = new Date();
+  let pipeImages = [
+    ...pipes,
+    ...extraPipes,
+  ].map(({ x, y, w, h, bottom, img, guid }) => (
+    <PipeImage
+      key={guid}
+      x={x}
+      width={w}
+      height={h}
+      top={bottom ? y : y - h}
+      img={img} />
+  ));
+  console.log(pipeImages.length);
+  console.log('pipeImages calc: ' + ((new Date()) - beforeDate).toString() + 'ms');
+
+  return (
+    <View
+      style={styles.container}>
+      {pipeImages}
+    </View>
+  );
+}
+
+Pipes.displayName = 'Pipes';
+
+Pipes = connect(
+  ({ pipes: { cursor, pipes } }) => ({ cursor, pipes })
+)(Pipes);
 
 
 /**
@@ -282,7 +353,7 @@ const WithScoreFont = WithCustomFont.createCustomFontComponent({
   uri: 'https://dl.dropboxusercontent.com/u/535792/exponent/floaty-font.ttf',
 });
 
-const Score = connect(
+let Score = connect(
   ({ splash, score }) => Immutable({ splash, score: Math.floor(score) })
 )(
   ({ splash, score }) => {
@@ -303,6 +374,8 @@ const Score = connect(
     );
   }
 );
+
+Score.displayName = 'Score';
 
 
 /**
@@ -353,37 +426,39 @@ const cloudReduce = defaultReducer({
   },
 });
 
-const Clouds = connect(
-  ({ clouds: { clouds }}) => Immutable({ clouds })
-)(
-  ({ clouds }) => {
-    return (
-      <View
-        key="clouds-container"
-        style={styles.container}>
-        {
-          clouds.asMutable().map(({ x, y, img }) => (
-            <Image
-              key={`cloud-image-${img}`}
-              style={{ position: 'absolute',
-                       left: x, top: y,
-                       width: CLOUD_WIDTH, height: CLOUD_HEIGHT,
-                       backgroundColor: 'transparent' }}
-              source={{ uri: img }}
-            />
-          ))
-        }
-      </View>
-    );
-  }
-);
+let Clouds = ({ clouds }) => {
+  return (
+    <View
+      key="clouds-container"
+      style={styles.container}>
+      {
+        clouds.asMutable().map(({ x, y, img }) => (
+          <Image
+            key={`cloud-image-${img}`}
+            style={{ position: 'absolute',
+                     left: x, top: y,
+                     width: CLOUD_WIDTH, height: CLOUD_HEIGHT,
+                     backgroundColor: 'transparent' }}
+            source={{ uri: img }}
+          />
+        ))
+      }
+    </View>
+  );
+}
+
+Clouds.displayName = 'Clouds';
+
+Clouds = connect(
+  ({ clouds: { clouds }}) => ({ clouds })
+)(Clouds);
 
 
 /**
  * Splash
  */
 
-const Splash = connect(
+let Splash = connect(
   ({ splash }) => Immutable({ splash })
 )(
   ({ splash }) => {
@@ -404,6 +479,8 @@ const Splash = connect(
     );
   }
 );
+
+Splash.displayName = 'Splash';
 
 
 /**

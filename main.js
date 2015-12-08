@@ -9,6 +9,7 @@ const {
 
 const { connect, Provider } = require('react-redux/native');
 const { createStore } = require('redux');
+import instrumentCreateStore from 'instrumentCreateStore';
 
 
 const REPL = require('./REPL');
@@ -92,7 +93,10 @@ class Clock extends React.Component {
   }
 
   tick(dt) {
+    // React.addons.Perf.start();
     this.props.dispatch({ type: 'TICK', dt });
+    // React.addons.Perf.stop();
+    // React.addons.Perf.printInclusive();
   }
 
   render() {
@@ -142,7 +146,9 @@ const mainReduce = (state, action) => {
 const Main = () => {
   REPL.connect();
 
-  const store = createStore(mainReduce,
+  // const store = createStore(mainReduce,
+  //                           mainReduce(undefined, { type: 'START' }));
+  const store = instrumentCreateStore(createStore)(mainReduce,
                             mainReduce(undefined, { type: 'START' }));
   return (
     <Provider store={store}>
