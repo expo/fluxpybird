@@ -2,6 +2,7 @@
 
 const React = require('react-native');
 const {
+  Animated,
   Image,
   StyleSheet,
   Text,
@@ -31,6 +32,58 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultReducer = (reductions) => (state, action, ...rest) => (
   (reductions[action.type] || reductions.DEFAULT)(state, action, ...rest)
 );
+
+
+/**
+ * Sprite
+ *
+ * Render an Image with absolute position.
+ */
+
+class Sprite extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      pos: new Animated.ValueXY({ x: props.x, y: props.y }),
+      rot: props.rot !== undefined ? new Animated.Value(props.rot) : undefined,
+    };
+  }
+
+  componentWillReceiveProps({ x, y, rot }) {
+    this.state.pos.setValue({ x, y });
+    if (rot) {
+      this.state.rot.setValue(rot);
+    }
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return nextProps.img !== this.props.img;
+  }
+
+  render() {
+    let { pos, rot } = this.state;
+    let { img, w, h } = this.props;
+    let transform;
+    if (rot) {
+      transform = [{
+        rotate: rot.interpolate({
+          inputRange: [0, 360],
+          outputRange: ['0deg', '360deg'],
+        }),
+      }];
+    }
+    return (
+      <Animated.Image
+        style={{ position: 'absolute',
+                 ...pos.getLayout(),
+                 transform,
+                 width: w, height: h,
+                 backgroundColor: 'transparent' }}
+        source={{ uri: img }}
+      />
+    );
+  }
+}
 
 
 /**
@@ -118,14 +171,9 @@ const Bird = connect(
   ({ x, y, w, h, vx, vy }) => {
     const rot = Math.max(-25, Math.min(vy / (vy > 0 ? 9 : 6), 50));
     return (
-      <Image
-        key="bird-image"
-        style={{ position: 'absolute',
-                 transform: [{ rotate: rot + 'deg' }],
-                 left: x - w / 2, top: y - h / 2,
-                 width: w, height: h,
-                 backgroundColor: 'transparent' }}
-        source={{ uri: Media['floaty.png'] }}
+      <Sprite
+        key="bird-sprite"
+        {...{x: x - w / 2, y: y - h / 2, rot, w, h, img: Media['floaty.png'] }}
       />
     );
   }
@@ -244,13 +292,9 @@ const Pipes = connect(
             ...pipes,
             ...extraPipes,
           ].map(({ x, y, w, h, bottom, img }) => (
-            <Image
-              key={`pipe-image-${img}-${keys[img]++}`}
-              style={{ position: 'absolute',
-                       left: x, top: bottom ? y : y - h,
-                       width: w, height: h,
-                       backgroundColor: 'transparent' }}
-              source={{ uri: img }}
+            <Sprite
+              key={`pipe-sprite-${img}-${keys[img]++}`}
+              {...{x, y: bottom ? y : y - h, w, h, img }}
             />
           ))
         }
@@ -363,13 +407,9 @@ const Clouds = connect(
         style={styles.container}>
         {
           clouds.asMutable().map(({ x, y, img }) => (
-            <Image
-              key={`cloud-image-${img}`}
-              style={{ position: 'absolute',
-                       left: x, top: y,
-                       width: CLOUD_WIDTH, height: CLOUD_HEIGHT,
-                       backgroundColor: 'transparent' }}
-              source={{ uri: img }}
+            <Sprite
+              key={`cloud-sprite-${img}`}
+              {...{x, y, img, w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
             />
           ))
         }
@@ -393,13 +433,11 @@ const Splash = connect(
 
     const w = 398, h = 202;
     return (
-      <Image
-        key="splash-image"
-        style={{ position: 'absolute',
-                 left: (SCREEN_WIDTH - w) / 2, top: 100,
-                 width: w, height: h,
-                 backgroundColor: 'transparent' }}
-        source={{ uri: Media['splash.png'] }}
+      <Sprite
+        key="splash-sprite"
+        x={(SCREEN_WIDTH - w) / 2} y={100}
+        w={w} h={h}
+        img={Media['splash.png']}
       />
     );
   }
