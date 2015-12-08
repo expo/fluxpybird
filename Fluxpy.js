@@ -13,6 +13,7 @@ const Dimensions = require('Dimensions');
 const Immutable = require('seamless-immutable');
 const WithCustomFont = require('@exponent/with-custom-font');
 
+const Media = require('./Media');
 
 const REPL = require('./REPL');
 
@@ -124,7 +125,7 @@ const Bird = connect(
                  left: x - w / 2, top: y - h / 2,
                  width: w, height: h,
                  backgroundColor: 'transparent' }}
-        source={{ uri: 'http://i.imgur.com/aAWCxNv.png' }}
+        source={{ uri: Media['floaty.png'] }}
       />
     );
   }
@@ -145,8 +146,8 @@ const defaultPipe = {
 };
 
 const pipeImgs = [
-  'http://i.imgur.com/4n2WHCE.png',
-  'http://i.imgur.com/bQpVtG7.png',
+  Media['pillar-1.png'],
+  Media['pillar-2.png'],
 ];
 
 const pickPipeImg = () => (
@@ -309,10 +310,10 @@ const Score = connect(
  */
 
 const cloudImgs = [
-  'http://i.imgur.com/ikAxUM8.png',
-  'http://i.imgur.com/kN1B1vE.png',
-  'http://i.imgur.com/BvYFVgj.png',
-  'http://i.imgur.com/8asAfkz.png',
+  Media['cloud-1.png'],
+  Media['cloud-2.png'],
+  Media['cloud-3.png'],
+  Media['cloud-4.png'],
 ];
 
 const CLOUD_WIDTH = 283;
@@ -398,7 +399,7 @@ const Splash = connect(
                  left: (SCREEN_WIDTH - w) / 2, top: 100,
                  width: w, height: h,
                  backgroundColor: 'transparent' }}
-        source={{ uri: 'http://i.imgur.com/kgJfxjH.png' }}
+        source={{ uri: Media['splash.png'] }}
       />
     );
   }
