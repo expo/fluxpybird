@@ -10,6 +10,8 @@ const {
 const { connect, Provider } = require('react-redux/native');
 const { createStore } = require('redux');
 
+const Styles = require('./Styles');
+
 
 const REPL = require('./REPL');
 
@@ -108,10 +110,11 @@ class Clock extends React.Component {
  */
 
 const Game = () => (
-  <Touch>
+  <View style={Styles.container}>
     <Clock />
     <Scene />
-  </Touch>
+    <Touch style={Styles.container}/>
+  </View>
 );
 
 

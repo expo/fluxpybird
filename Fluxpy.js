@@ -9,19 +9,15 @@ const {
 } = React;
 
 const { connect } = require('react-redux/native');
-const Dimensions = require('Dimensions');
 const Immutable = require('seamless-immutable');
 const WithCustomFont = require('@exponent/with-custom-font');
 
 const Media = require('./Media');
+const Styles = require('./Styles');
 
 const REPL = require('./REPL');
 
 REPL.registerEval('Fluxpy', (c) => eval(c));
-
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 
 /*
@@ -49,8 +45,8 @@ const birdReduce = defaultReducer({
     return Immutable({
       time: 0,
       alive: true,
-      x: SCREEN_WIDTH - 280,
-      y: SCREEN_HEIGHT / 2,
+      x: Styles.screenW - 280,
+      y: Styles.screenH / 2,
       w: 41, h: 29,
       vx: 110, vy: 0,
       ay: 700, ax: 9,
@@ -60,7 +56,7 @@ const birdReduce = defaultReducer({
   TICK({ splash, bird, pipes: { pipes } }, { dt }, dispatch) {
     let die = false;
     if (bird.alive) {
-      if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
+      if (bird.y < 0 || bird.y + bird.h > Styles.screenH) {
         die = true;
       }
       if (!GHOST && pipes.some(({ x, y, w, bottom }) => (
@@ -73,7 +69,7 @@ const birdReduce = defaultReducer({
         die = true;
       }
     } else {
-      if (bird.y > SCREEN_HEIGHT + 400) {
+      if (bird.y > Styles.screenH + 400) {
         dispatch({ type: 'START' });
       }
     }
@@ -140,7 +136,7 @@ const Bird = connect(
  */
 
 const defaultPipe = {
-  x: SCREEN_WIDTH + 2, y: -2,
+  x: Styles.screenW + 2, y: -2,
   w: 58, h: 800,
   bottom: false,
 };
@@ -178,7 +174,7 @@ const pipesReduce = defaultReducer({
     let cursorDir;
     if (pipes.cursor < 40) {
       cursorDir = true;
-    } else if (pipes.cursor > SCREEN_HEIGHT - 340) {
+    } else if (pipes.cursor > Styles.screenH - 340) {
       cursorDir = false;
     } else {
       cursorDir = (pipes.cursorFlipTime < 0 ?
@@ -324,8 +320,8 @@ const cloudReduce = defaultReducer({
   START() {
     return Immutable({
       clouds: cloudImgs.map((img) => ({
-        x: SCREEN_WIDTH * 3 * Math.random(),
-        y: SCREEN_HEIGHT * Math.random() - CLOUD_HEIGHT / 2,
+        x: Styles.screenW * 3 * Math.random(),
+        y: Styles.screenH * Math.random() - CLOUD_HEIGHT / 2,
         vxFactor: 0.1 + 0.2 * Math.random(),
         img,
       })),
@@ -341,8 +337,8 @@ const cloudReduce = defaultReducer({
           });
         }
         return cloud.merge({
-          x: SCREEN_WIDTH * (1 + Math.random()),
-          y: SCREEN_HEIGHT * Math.random() - CLOUD_HEIGHT / 2,
+          x: Styles.screenW * (1 + Math.random()),
+          y: Styles.screenH * Math.random() - CLOUD_HEIGHT / 2,
           vxFactor: 0.2 + 0.2 * Math.random(),
         });
       }),
@@ -361,7 +357,7 @@ const Clouds = connect(
     return (
       <View
         key="clouds-container"
-        style={styles.container}>
+        style={Styles.container}>
         {
           clouds.asMutable().map(({ x, y, img }) => (
             <Image
@@ -397,7 +393,7 @@ const Splash = connect(
       <Image
         key="splash-image"
         style={{ position: 'absolute',
-                 left: (SCREEN_WIDTH - w) / 2, top: 100,
+                 left: (Styles.screenW - w) / 2, top: 100,
                  width: w, height: h,
                  backgroundColor: 'transparent' }}
         source={{ uri: Media['splash.png'] }}
@@ -451,7 +447,7 @@ const sceneReduce = (state = Immutable({}), action, dispatch) => {
 const Scene = () => (
   <View
     key="scene-container"
-    style={[styles.container, { backgroundColor: '#F5FCFF' }]}>
+    style={[Styles.container, { backgroundColor: '#f5fcff' }]}>
     <Clouds />
     <Pipes />
     <Bird />
@@ -462,13 +458,6 @@ const Scene = () => (
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    top: 0, left: 0,
-    width: SCREEN_WIDTH, height: SCREEN_HEIGHT,
-  },
   scoreContainer: {
     position: 'absolute',
     top: 42,
