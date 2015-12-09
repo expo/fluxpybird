@@ -235,30 +235,26 @@ const Pipes = connect(
         pipesByImg[img].push(extraPipe);
       }
     });
+    const elems = [];
+    pipeImgs.forEach((img) => {
+      pipesByImg[img].forEach(({ x, y, w, h, bottom, img }, i) => {
+        elems.push(
+          <Image
+            key={`pipe-image-${img}-${i}`}
+            style={{ position: 'absolute',
+                     left: x, top: bottom ? y : y - h,
+                     width: w, height: h,
+                     backgroundColor: 'transparent' }}
+            source={{ uri: Media[img] }}
+          />
+        );
+      });
+    });
     return (
       <View
         key="pipes-container"
-        style={styles.container}>
-        {
-          pipeImgs.map((img) => (
-            <View
-              key={`pipes-container-${img}`}
-              style={styles.container}>
-              {
-                pipesByImg[img].map(({ x, y, w, h, bottom, img }, i) => (
-                  <Image
-                    key={`pipe-image-${i}`}
-                    style={{ position: 'absolute',
-                             left: x, top: bottom ? y : y - h,
-                             width: w, height: h,
-                             backgroundColor: 'transparent' }}
-                    source={{ uri: Media[img] }}
-                  />
-                ))
-              }
-            </View>
-          ))
-        }
+        style={Styles.container}>
+        {elems}
       </View>
     );
   }
