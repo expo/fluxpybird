@@ -194,8 +194,8 @@ const defaultPipe = {
 };
 
 const pipeImgs = [
-  Media['pillar-1.png'],
-  Media['pillar-2.png'],
+  'pillar-1.png',
+  'pillar-2.png',
 ];
 
 const pickPipeImg = () => (
@@ -273,29 +273,34 @@ const Pipes = connect(
   ({ pipes: { cursor, pipes } }) => Immutable({ cursor, pipes })
 )(
   ({ cursor, pipes }) => {
-    const numPipes = pipes.reduce((o, { img }) => (
-      { ...o, [img]: o[img] ? o[img] + 1 : 1 }
-    ), {});
-    const extraPipes = pipeImgs.reduce((a, img) => {
-      maxNumPipes[img] = Math.max(maxNumPipes[img], numPipes[img] || 0);
-      return a.concat(Array(maxNumPipes[img] - (numPipes[img] || 0)).fill(
-        { ...defaultPipe, img }
-      ));
-    }, []);
-    const keys = pipeImgs.reduce((o, img) => ({ ...o, [img]: 0 }), {});
+    const pipesByImg = {};
+    pipeImgs.forEach((img) => pipesByImg[img] = []);
+    pipes.forEach((pipe) => pipesByImg[pipe.img].push(pipe));
+    pipeImgs.forEach((img) => {
+      const extraPipe = { ...defaultPipe, img };
+      maxNumPipes[img] = Math.max(maxNumPipes[img], pipesByImg[img].length);
+      while (pipesByImg[img].length < maxNumPipes[img]) {
+        pipesByImg[img].push(extraPipe);
+      }
+    });
     return (
       <View
         key="pipes-container"
         style={styles.container}>
         {
-          [
-            ...pipes,
-            ...extraPipes,
-          ].map(({ x, y, w, h, bottom, img }) => (
-            <Sprite
-              key={`pipe-sprite-${img}-${keys[img]++}`}
-              {...{x, y: bottom ? y : y - h, w, h, img }}
-            />
+          pipeImgs.map((img) => (
+            <View
+              key={`pipes-container-${img}`}
+              style={styles.container}>
+              {
+                pipesByImg[img].map(({ x, y, w, h, bottom, img }, i) => (
+                  <Sprite
+                    key={`pipe-sprite-${i}`}
+                    {...{x, y: bottom ? y : y - h, w, h, img: Media[img] }}
+                  />
+                ))
+              }
+            </View>
           ))
         }
       </View>
@@ -354,10 +359,10 @@ const Score = connect(
  */
 
 const cloudImgs = [
-  Media['cloud-1.png'],
-  Media['cloud-2.png'],
-  Media['cloud-3.png'],
-  Media['cloud-4.png'],
+  'cloud-1.png',
+  'cloud-2.png',
+  'cloud-3.png',
+  'cloud-4.png',
 ];
 
 const CLOUD_WIDTH = 283;
@@ -409,7 +414,7 @@ const Clouds = connect(
           clouds.asMutable().map(({ x, y, img }) => (
             <Sprite
               key={`cloud-sprite-${img}`}
-              {...{x, y, img, w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
+              {...{x, y, img: Media[img], w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
             />
           ))
         }
