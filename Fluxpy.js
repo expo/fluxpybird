@@ -239,7 +239,7 @@ const Pipes = connect(
             key={`pipe-image-${img}-${i}`}
             style={{ position: 'absolute',
                      left: x, top: bottom ? y : y - h,
-                     width: w, height: h,
+                     width: 800, height: 800,
                      backgroundColor: 'transparent' }}
             source={{ uri: Media[img] }}
           />
