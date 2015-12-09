@@ -4,6 +4,11 @@
   "description": "Hello Exponent!",
   "main": "main.js",
   "author": null,
+  "exp": {
+    "name": "Floaty Plane",
+    "iconUrl": "https://s3-us-west-2.amazonaws.com/examples-exp/floaty_icon.png",
+    "orientation": "portrait"
+  },
   "dependencies": {
     "@exponent/with-custom-font": "^1.0.0",
     "react-native": "exponentjs/react-native#2015-11-13",
