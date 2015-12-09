@@ -79,7 +79,7 @@ class Sprite extends React.Component {
                  transform,
                  width: w, height: h,
                  backgroundColor: 'transparent' }}
-        source={{ uri: img }}
+        source={{ uri: Media[img] }}
       />
     );
   }
@@ -173,7 +173,7 @@ const Bird = connect(
     return (
       <Sprite
         key="bird-sprite"
-        {...{x: x - w / 2, y: y - h / 2, rot, w, h, img: Media['floaty.png'] }}
+        {...{x: x - w / 2, y: y - h / 2, rot, w, h, img: 'floaty.png' }}
       />
     );
   }
@@ -296,7 +296,7 @@ const Pipes = connect(
                 pipesByImg[img].map(({ x, y, w, h, bottom, img }, i) => (
                   <Sprite
                     key={`pipe-sprite-${i}`}
-                    {...{x, y: bottom ? y : y - h, w, h, img: Media[img] }}
+                    {...{x, y: bottom ? y : y - h, w, h, img }}
                   />
                 ))
               }
@@ -414,7 +414,7 @@ const Clouds = connect(
           clouds.asMutable().map(({ x, y, img }) => (
             <Sprite
               key={`cloud-sprite-${img}`}
-              {...{x, y, img: Media[img], w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
+              {...{x, y, img, w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
             />
           ))
         }
@@ -442,7 +442,7 @@ const Splash = connect(
         key="splash-sprite"
         x={(SCREEN_WIDTH - w) / 2} y={100}
         w={w} h={h}
-        img={Media['splash.png']}
+        img="splash.png"
       />
     );
   }
