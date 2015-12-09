@@ -54,7 +54,7 @@ const queueEvalIn = (contextName, code) => {
  */
 const flushEvalInQueue = () => {
   evalInQueue.forEach(({ module, code}) => {
-    console.log(`= ${window.evalIn(module, code)}`);
+    console.log(window.evalIn(module, code));
   });
   evalInQueue.length = 0;
 };
@@ -67,13 +67,11 @@ const connect = (url = 'http://nikhileshs-air.local:5000') => {
   socket = io(url, { jsonp: false });
 
   socket.on('evalIn', ({ contextName, code }) => {
-    console.log(`evalIn: '${contextName}', "${code}"`);
-
     let result;
     let error;
     try {
       result = evalIn(contextName, code);
-    } catch(ex) {
+    } catch (ex) {
       error = ex.toString();
     }
     socket.emit('evalResult', { result, error });
