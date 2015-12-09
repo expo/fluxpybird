@@ -10,15 +10,14 @@ const {
 const { connect, Provider } = require('react-redux/native');
 const { createStore } = require('redux');
 
-
 const REPL = require('./REPL');
 
 REPL.registerEval('main', (c) => eval(c));
 
 
 // Import from a different module for a different game!
-import { sceneReduce, Scene } from './Fluxpy';
-
+import { Scene } from './Fluxpy';
+import { store } from './Flux';
 
 /**
  * Touch
@@ -30,17 +29,15 @@ import { sceneReduce, Scene } from './Fluxpy';
  * actually render anything.
  */
 
-const Touch = connect()(
-  ({ dispatch, children, ...props }) => {
+const Touch = (props) => {
     const panGrant = (_, gestureState) =>
-      dispatch({ ...gestureState, type: 'TOUCH', pressed: true });
+      store.dispatch({ ...gestureState, type: 'TOUCH', pressed: true });
     const panRelease = (_, gestureState) =>
-      dispatch({ ...gestureState, type: 'TOUCH', pressed: false });
+      store.dispatch({ ...gestureState, type: 'TOUCH', pressed: false });
     const panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: panGrant,
       onPanResponderRelease: panRelease,
-      onPanResponderTerminate: panRelease,
       onShouldBlockNativeResponder: () => false,
     });
 
@@ -49,11 +46,10 @@ const Touch = connect()(
         {...props}
         {...panResponder.panHandlers}
         style={{ ...props.style, flex: 1 }}>
-        {children}
+        {props.children}
       </View>
     );
-  }
-);
+}
 
 
 /**
@@ -67,6 +63,8 @@ const Touch = connect()(
 @connect()
 class Clock extends React.Component {
   componentDidMount() {
+    this._tickCount = 0;
+    this._mountTime = new Date();
     this._requestTick();
   }
 
@@ -80,10 +78,13 @@ class Clock extends React.Component {
     if (!this._lastTickTime) {
       this._lastTickTime = Date.now();
     }
+
     this._tickRequestID = requestAnimationFrame(this._tick.bind(this));
   }
 
   _tick() {
+    this._tickCount = this._tickCount + 1;
+    console.log(`${this._tickCount/(((new Date()) - this._mountTime) * 0.001)} ticks/s`);
     this._tickRequestID = undefined;
     const currTime = Date.now();
     this.tick(Math.min(0.05, 0.001 * (currTime - this._lastTickTime)));
@@ -121,29 +122,10 @@ const Game = () => (
  * Initializes a Redux store and provides it to Game.
  */
 
-const dispatchQueue = [];
-
-const queueDispatch = (action) => dispatchQueue.push(action);
-
-const mainReduce = (state, action) => {
-  if (action.type === 'TICK') {
-    REPL.flushEvalInQueue();
-  }
-
-  const actions = [action].concat(dispatchQueue);
-  dispatchQueue.length = 0;
-  const dispatch = (action) => actions.push(action);
-  while (actions.length > 0) {
-    state = sceneReduce(state, actions.shift(), dispatch);
-  }
-  return state;
-};
 
 const Main = () => {
   REPL.connect();
 
-  const store = createStore(mainReduce,
-                            mainReduce(undefined, { type: 'START' }));
   return (
     <Provider store={store}>
       {() => <Game />}

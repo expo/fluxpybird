@@ -9,14 +9,16 @@ const {
   View,
 } = React;
 
+const Immutable = require('seamless-immutable');
+
 const { connect } = require('react-redux/native');
 const Dimensions = require('Dimensions');
-const Immutable = require('seamless-immutable');
 const WithCustomFont = require('@exponent/with-custom-font');
 
 const Media = require('./Media');
 
 const REPL = require('./REPL');
+import { store } from './Flux';
 
 REPL.registerEval('Fluxpy', (c) => eval(c));
 
@@ -24,14 +26,6 @@ REPL.registerEval('Fluxpy', (c) => eval(c));
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-
-/*
- * Return a reducer that runs the reducer `reductions[action]`, defaulting to
- * `reductions.DEFAULT` if not found.
- */
-const defaultReducer = (reductions) => (state, action, ...rest) => (
-  (reductions[action.type] || reductions.DEFAULT)(state, action, ...rest)
-);
 
 
 /**
@@ -50,142 +44,102 @@ class Sprite extends React.Component {
   }
 
   componentWillReceiveProps({ x, y, rot }) {
-    this.state.pos.setValue({ x, y });
-    if (rot) {
-      this.state.rot.setValue(rot);
+    if (x !== this.props.x) {
+      this.state.pos.x.setValue(x);
     }
+
+    if (y !== this.props.y) {
+      this.state.pos.y.setValue(y);
+    }
+
+    // if (rot) {
+    //   this.state.rot.setValue(rot);
+    // }
   }
 
   shouldComponentUpdate(nextProps) {
-    return nextProps.img !== this.props.img;
+    return false;
   }
 
   render() {
     let { pos, rot } = this.state;
     let { img, w, h } = this.props;
     let transform;
-    if (rot) {
-      transform = [{
-        rotate: rot.interpolate({
-          inputRange: [0, 360],
-          outputRange: ['0deg', '360deg'],
-        }),
-      }];
-    }
+    // if (rot) {
+    //   transform = [{
+    //     rotate: rot.interpolate({
+    //       inputRange: [0, 360],
+    //       outputRange: ['0deg', '360deg'],
+    //     }),
+    //   }];
+    // }
+
     return (
       <Animated.Image
+        id={(this.props.id ? this.props.id : '-') + this.props.img}
         style={{ position: 'absolute',
                  ...pos.getLayout(),
-                 transform,
                  width: w, height: h,
                  backgroundColor: 'transparent' }}
-        source={{ uri: img }}
+        source={{ uri: Media[img] }}
       />
     );
   }
 }
 
+class Bird extends React.Component {
+  constructor(props) {
+    super(props);
 
-/**
- * Bird
- *
- * Bird's (x, y) is position of its center
- */
+    this.state = {};
+  }
 
-const BIRD_FREQ = 1.2;
-const BIRD_AMP = 140;
-
-let GHOST = false;
-
-const birdReduce = defaultReducer({
-  START() {
-    return Immutable({
-      time: 0,
-      alive: true,
-      x: SCREEN_WIDTH - 280,
-      y: SCREEN_HEIGHT / 2,
-      w: 41, h: 29,
-      vx: 110, vy: 0,
-      ay: 700, ax: 9,
+  componentWillMount() {
+    store.subscribe(() => {
+      this.setState({bird: store.getState().bird});
     });
-  },
+  }
 
-  TICK({ splash, bird, pipes: { pipes } }, { dt }, dispatch) {
-    let die = false;
-    if (bird.alive) {
-      if (bird.y < 0 || bird.y + bird.h > SCREEN_HEIGHT) {
-        die = true;
-      }
-      if (!GHOST && pipes.some(({ x, y, w, bottom }) => (
-        x + w > bird.x - bird.w / 2 &&
-        x < bird.x + bird.w / 2 &&
-        (bottom ?
-         bird.y + bird.h / 2 > y :
-         bird.y - bird.h / 2 < y)
-      ))) {
-        die = true;
-      }
-    } else {
-      if (bird.y > SCREEN_HEIGHT + 400) {
-        dispatch({ type: 'START' });
-      }
+  render() {
+    if (!this.state.bird) {
+      return <View />;
     }
 
-    let vy = bird.vy;
-    if (GHOST || splash) {
-      vy = BIRD_AMP * Math.sin(BIRD_FREQ * Math.PI * bird.time);
-    } else if (die) {
-      vy = -150;
-    } else {
-      vy += bird.ay * dt;
-    }
+    let { x, y, w, h, vx, vy } = this.state.bird;
+    const rot = parseInt(Math.max(-25, Math.min(vy / (vy > 0 ? 9 : 6), 50)), 10);
 
-    return bird.merge({
-      time: bird.time + dt,
-      alive: bird.alive && !die,
-      y: bird.y + bird.vy * dt,
-      x: bird.alive ? bird.x : bird.x - 0.5 * bird.vx * dt,
-      vx: splash ? bird.vx : Math.max(0, bird.vx + bird.ax * dt),
-      vy,
-      ax: (die ?
-           Math.min(-bird.vx / 2, -0.25 * bird.vx * bird.vx / (bird.x - bird.w)) :
-           bird.ax),
-      ay: die ? 700 : bird.ay,
-    });
-  },
-
-  TOUCH({ bird }, { pressed }) {
-    return bird.merge({
-      ay: bird.alive && pressed ? -1600 : 700,
-    });
-  },
-
-  DEFAULT({ bird }) {
-    return bird;
-  },
-});
-
-const Bird = connect(
-  ({ bird }) => bird
-)(
-  ({ x, y, w, h, vx, vy }) => {
-    const rot = Math.max(-25, Math.min(vy / (vy > 0 ? 9 : 6), 50));
     return (
       <Sprite
         key="bird-sprite"
-        {...{x: x - w / 2, y: y - h / 2, rot, w, h, img: Media['floaty.png'] }}
+        {...{x: parseInt(x - w / 2, 10), y: parseInt(y - h / 2, 10), rot, w, h, img: 'floaty.png' }}
       />
     );
   }
-);
+}
+
+// const Bird = connect(
+//   ({ bird }) => bird
+// )(
+//   ({ x, y, w, h, vx, vy }) => {
+//     const rot = Math.max(-25, Math.min(vy / (vy > 0 ? 9 : 6), 50));
+//     return (
+//       <Sprite
+//         key="bird-sprite"
+//         {...{x: x - w / 2, y: y - h / 2, rot, w, h, img: 'floaty.png' }}
+//       />
+//     );
+//   }
+// );
 
 
-/**
- * Pipes
- *
- * A pipe's (x, y) is where the left corner of its 'surface' is (bottom edge for
- * top-pipe, top edge for bottom-pipe)
- */
+const pipeImgs = [
+  'pillar-1.png',
+  'pillar-2.png',
+];
+
+// Ensure a constant-ish number of components by rendering extra
+// off-screen pipes
+let maxNumPipes = pipeImgs.reduce((o, img) => ({ ...o, [img]: 5 }), {});
 
 const defaultPipe = {
   x: SCREEN_WIDTH + 2, y: -2,
@@ -193,134 +147,66 @@ const defaultPipe = {
   bottom: false,
 };
 
-const pipeImgs = [
-  Media['pillar-1.png'],
-  Media['pillar-2.png'],
-];
 
-const pickPipeImg = () => (
-  pipeImgs[Math.floor(pipeImgs.length * Math.random())]
-);
+class Pipes extends React.Component {
+  constructor(props) {
+    super(props);
 
-const pipesReduce = defaultReducer({
-  START() {
-    return Immutable({
-      cursor: 100,
-      cursorDir: Math.random() < 0.5,
-      cursorFlipTime: Math.random(),
-      distance: 120,
-      pipes: [],
+    this.state = {};
+  }
+
+  componentWillMount() {
+    store.subscribe(() => {
+      let { pipes: { cursor, pipes } } = store.getState();
+      this.setState({cursor, pipes});
     });
-  },
+  }
 
-  TICK({ splash, bird, pipes }, { dt }, dispatch) {
-    if (splash) {
-      return pipes;
+  render() {
+    if (!this.state.pipes) {
+      return <View />;
     }
 
-    if (pipes.distance < 0) {
-      dispatch({ type: 'ADD_PIPES' });
-    }
-
-    let cursorV = Math.random() * (pipes.cursorDir ? 1 : -1) * 220;
-    let cursorDir;
-    if (pipes.cursor < 40) {
-      cursorDir = true;
-    } else if (pipes.cursor > SCREEN_HEIGHT - 340) {
-      cursorDir = false;
-    } else {
-      cursorDir = (pipes.cursorFlipTime < 0 ?
-                   !pipes.cursorDir :
-                   pipes.cursorDir);
-    }
-
-    return pipes.merge({
-      cursor: (pipes.cursor + cursorV * dt),
-      cursorFlipTime: (pipes.cursorFlipTime < 0 ?
-                       2.2 * Math.random() :
-                       pipes.cursorFlipTime - dt),
-      cursorDir,
-
-      distance: (pipes.distance < 0 ?
-                 240 * Math.random() + 70 :
-                 pipes.distance - bird.vx * dt),
-      pipes: pipes.pipes.map((pipe) => pipe.merge({
-        x: pipe.x - bird.vx * dt,
-      })).filter((pipe) => pipe.x + pipe.w > 0),
-    });
-  },
-
-  ADD_PIPES({ pipes }) {
-    const gap = 200 + 100 * Math.random();
-    const top = pipes.cursor + 100 * Math.random();
-    return pipes.merge({
-      pipes: pipes.pipes.concat([
-        { ...defaultPipe, y: top, bottom: false, img: pickPipeImg() },
-        { ...defaultPipe, y: top + gap, bottom: true, img: pickPipeImg() },
-      ]),
-    });
-  },
-
-  DEFAULT({ pipes }) {
-    return pipes;
-  },
-});
-
-// Ensure a constant-ish number of components by rendering extra
-// off-screen pipes
-let maxNumPipes = pipeImgs.reduce((o, img) => ({ ...o, [img]: 5 }), {});
-const Pipes = connect(
-  ({ pipes: { cursor, pipes } }) => Immutable({ cursor, pipes })
-)(
-  ({ cursor, pipes }) => {
+    let { cursor, pipes } = this.state;
     const numPipes = pipes.reduce((o, { img }) => (
       { ...o, [img]: o[img] ? o[img] + 1 : 1 }
     ), {});
-    const extraPipes = pipeImgs.reduce((a, img) => {
-      maxNumPipes[img] = Math.max(maxNumPipes[img], numPipes[img] || 0);
-      return a.concat(Array(maxNumPipes[img] - (numPipes[img] || 0)).fill(
-        { ...defaultPipe, img }
-      ));
-    }, []);
+    // const extraPipes = pipeImgs.reduce((a, img) => {
+    //   maxNumPipes[img] = Math.max(maxNumPipes[img], numPipes[img] || 0);
+    //   return a.concat(Array(maxNumPipes[img] - (numPipes[img] || 0)).fill(
+    //     { ...defaultPipe, img }
+    //   ));
+    // }, []);
     const keys = pipeImgs.reduce((o, img) => ({ ...o, [img]: 0 }), {});
     return (
       <View
+        renderToHardwareTextureAndroid
         key="pipes-container"
         style={styles.container}>
         {
           [
             ...pipes,
-            ...extraPipes,
-          ].map(({ x, y, w, h, bottom, img }) => (
+            // ...extraPipes,
+          ].map(({ x, y, w, h, bottom, img, guid }) => (
             <Sprite
-              key={`pipe-sprite-${img}-${keys[img]++}`}
-              {...{x, y: bottom ? y : y - h, w, h, img }}
+              id='pipe'
+              key={guid}
+              {...{x: parseInt(x), y: parseInt(bottom ? y : y - h), w, h, img }}
             />
           ))
         }
       </View>
     );
   }
-);
+}
 
-
-/**
- * Score
- */
-
-const scoreReduce = defaultReducer({
-  START() {
-    return 0;
-  },
-
-  TICK({ splash, score }, { dt }) {
-    return splash ? score : score + dt;
-  },
-
-  DEFAULT({ score }) {
-    return score;
-  },
-});
+// const Pipes = connect(
+//   ({ pipes: { cursor, pipes } }) => Immutable({ cursor, pipes })
+// )(
+//   ({ cursor, pipes }) => {
+//   }
+// );
+// 
 
 const WithScoreFont = WithCustomFont.createCustomFontComponent({
   uri: 'https://dl.dropboxusercontent.com/u/535792/exponent/floaty-font.ttf',
@@ -348,75 +234,68 @@ const Score = connect(
   }
 );
 
-
-/**
- * Clouds
- */
-
-const cloudImgs = [
-  Media['cloud-1.png'],
-  Media['cloud-2.png'],
-  Media['cloud-3.png'],
-  Media['cloud-4.png'],
-];
-
 const CLOUD_WIDTH = 283;
 const CLOUD_HEIGHT = 142;
 
-const cloudReduce = defaultReducer({
-  START() {
-    return Immutable({
-      clouds: cloudImgs.map((img) => ({
-        x: SCREEN_WIDTH * 3 * Math.random(),
-        y: SCREEN_HEIGHT * Math.random() - CLOUD_HEIGHT / 2,
-        vxFactor: 0.1 + 0.2 * Math.random(),
-        img,
-      })),
+class Clouds extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
+
+  componentWillMount() {
+    store.subscribe(() => {
+      let { clouds } = store.getState();
+      this.setState({clouds: clouds && clouds.clouds});
     });
-  },
+  }
 
-  TICK({ bird, clouds }, { dt }, dispatch) {
-    return clouds.merge({
-      clouds: clouds.clouds.map((cloud) => {
-        if (cloud.x + CLOUD_WIDTH > 0) {
-          return cloud.merge({
-            x: cloud.x - cloud.vxFactor * (bird.vx + 65) * dt,
-          });
-        }
-        return cloud.merge({
-          x: SCREEN_WIDTH * (1 + Math.random()),
-          y: SCREEN_HEIGHT * Math.random() - CLOUD_HEIGHT / 2,
-          vxFactor: 0.2 + 0.2 * Math.random(),
-        });
-      }),
-    });
-  },
+  render() {
+    if (!this.state.clouds) {
+      return <View />;
+    }
 
-  DEFAULT({ clouds }) {
-    return clouds;
-  },
-});
+    let { clouds } = this.state;
 
-const Clouds = connect(
-  ({ clouds: { clouds }}) => Immutable({ clouds })
-)(
-  ({ clouds }) => {
     return (
       <View
         key="clouds-container"
         style={styles.container}>
         {
-          clouds.asMutable().map(({ x, y, img }) => (
+          clouds.asMutable().map(({ x, y, img, guid }) => (
             <Sprite
-              key={`cloud-sprite-${img}`}
-              {...{x, y, img, w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
+              id='cloud'
+              key={guid}
+              {...{x: parseInt(x), y: parseInt(y), img, w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
             />
           ))
         }
       </View>
     );
   }
-);
+}
+
+// const Clouds = connect(
+//   ({ clouds: { clouds }}) => Immutable({ clouds })
+// )(
+//   ({ clouds }) => {
+//     return (
+//       <View
+//         key="clouds-container"
+//         style={styles.container}>
+//         {
+//           clouds.asMutable().map(({ x, y, img }) => (
+//             <Sprite
+//               key={`cloud-sprite-${img}`}
+//               {...{x, y, img, w: CLOUD_WIDTH, h: CLOUD_HEIGHT }}
+//             />
+//           ))
+//         }
+//       </View>
+//     );
+//   }
+// );
 
 
 /**
@@ -437,63 +316,21 @@ const Splash = connect(
         key="splash-sprite"
         x={(SCREEN_WIDTH - w) / 2} y={100}
         w={w} h={h}
-        img={Media['splash.png']}
+        img={'splash.png'}
       />
     );
   }
 );
 
 
-/**
- * Fluxpy
- */
-
-const sceneReduce = (state = Immutable({}), action, dispatch) => {
-  let newState = state.merge({ parent: state });
-
-  switch (action.type) {
-    case 'START':
-      // No parent when re-starting
-      newState = Immutable({
-        splash: true,
-      });
-      break;
-
-    case 'TICK':
-      // If in reverse mode, abort and return the parent (also in reverse mode)
-      if (state.reverse) {
-        if (!state.parent) {
-          return state;
-        }
-        return state.parent.merge({ reverse: true });
-      }
-      break;
-
-    case 'TOUCH':
-      newState = newState.merge({
-        splash: state.splash && !action.pressed,
-        reverse: action.pressed && !state.bird.alive,
-      });
-      break;
-  }
-
-  return newState.merge({
-    bird: birdReduce(state, action, dispatch),
-    pipes: pipesReduce(state, action, dispatch),
-    score: scoreReduce(state, action, dispatch),
-    clouds: cloudReduce(state, action, dispatch),
-  });
-};
 
 const Scene = () => (
   <View
-    key="scene-container"
     style={[styles.container, { backgroundColor: '#F5FCFF' }]}>
-    <Clouds />
     <Pipes />
     <Bird />
-    <Score />
     <Splash />
+    <Score />
   </View>
 );
 
@@ -525,6 +362,5 @@ const styles = StyleSheet.create({
 });
 
 export default {
-  sceneReduce,
   Scene,
 };
