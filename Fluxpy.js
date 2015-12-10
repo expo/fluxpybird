@@ -404,6 +404,33 @@ const Splash = connect(
 
 
 /**
+ * Rewind
+ */
+
+const Rewind = connect(
+  ({ reverse }) => Immutable({ reverse })
+)(
+  ({ reverse }) => {
+    if (!reverse) {
+      return <View key="rewind-empty">{null}</View>;
+    }
+
+    const w = 36, h = 36;
+    return (
+      <Image
+        key="rewind-image"
+        style={{ position: 'absolute',
+                 left: (Styles.screenW - 30 - w), top: 42,
+                 width: w, height: h,
+                 backgroundColor: '#f00' }}
+        source={{ uri: Media['rewind.png'] }}
+      />
+    );
+  }
+);
+
+
+/**
  * Fluxpy
  */
 
@@ -452,6 +479,7 @@ const Scene = () => (
     <Pipes />
     <Bird />
     <Score />
+    <Rewind />
     <Splash />
   </View>
 );
