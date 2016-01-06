@@ -1,21 +1,20 @@
 'use strict';
 
-const React = require('react-native');
-const {
+import React, {
   Image,
   StyleSheet,
   Text,
   View,
-} = React;
+} from 'react-native';
 
-const { connect } = require('react-redux/native');
-const Immutable = require('seamless-immutable');
-const WithCustomFont = require('@exponent/with-custom-font');
+import { connect } from 'react-redux/native';
+import Immutable from 'seamless-immutable';
+import WithCustomFont from '@exponent/with-custom-font';
 
-const Media = require('./Media');
-const Styles = require('./Styles');
+import Media from './Media';
+import Styles from './Styles';
 
-const REPL = require('./REPL');
+import REPL from './REPL';
 
 REPL.registerEval('Fluxpy', (c) => eval(c));
 
@@ -504,7 +503,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default {
+export {
   sceneReduce,
   Scene,
 };

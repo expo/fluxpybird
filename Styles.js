@@ -1,6 +1,6 @@
 'use strict';
 
-const Dimensions = require('Dimensions');
+import Dimensions from 'Dimensions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;

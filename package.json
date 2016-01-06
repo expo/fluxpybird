@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@exponent/with-custom-font": "^1.0.0",
-    "react-native": "exponentjs/react-native#2015-11-13",
+    "react-native": "exponentjs/react-native#2016-01-02",
     "react-redux": "^3.1.0",
     "redux": "^3.0.4",
     "seamless-immutable": "^4.0.2",
