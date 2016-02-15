@@ -7,11 +7,13 @@
   "exp": {
     "name": "Floaty Plane",
     "iconUrl": "https://s3-us-west-2.amazonaws.com/examples-exp/floaty_icon.png",
-    "orientation": "portrait"
+    "orientation": "portrait",
+    "abiVersion": "5.0.0"
   },
   "dependencies": {
     "@exponent/with-custom-font": "^1.0.0",
-    "react-native": "exponentjs/react-native#2016-01-02",
+    "react": "^0.14.7",
+    "react-native": "exponentjs/react-native#2016-02-09",
     "react-redux": "^3.1.0",
     "redux": "^3.0.4",
     "seamless-immutable": "^4.0.2",
@@ -19,6 +21,8 @@
   },
   "devDependencies": {
     "babel-eslint": "^4.1.6",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-react-native": "^1.4.0",
     "eslint": "^1.10.3",
     "eslint-plugin-react": "^3.11.2"
   }
