@@ -23,9 +23,8 @@ REPL.registerEval('Fluxpy', (c) => eval(c));
  * Return a reducer that runs the reducer `reductions[action]`, defaulting to
  * `reductions.DEFAULT` if not found.
  */
-const defaultReducer = (reductions) => (state, action, ...rest) => (
-  (reductions[action.type] || reductions.DEFAULT)(state, action, ...rest)
-);
+const defaultReducer = (reductions) => (state, action, ...rest) =>
+  (reductions[action.type] || reductions.DEFAULT)(state, action, ...rest);
 
 
 /**
@@ -145,9 +144,8 @@ const pipeImgs = [
   'pillar-2.png',
 ];
 
-const pickPipeImg = () => (
-  pipeImgs[Math.floor(pipeImgs.length * Math.random())]
-);
+const pickPipeImg = () =>
+  pipeImgs[Math.floor(pipeImgs.length * Math.random())];
 
 const pipesReduce = defaultReducer({
   START() {
