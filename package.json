@@ -8,22 +8,22 @@
     "name": "Floaty Plane",
     "iconUrl": "https://s3-us-west-2.amazonaws.com/examples-exp/floaty_icon.png",
     "orientation": "portrait",
-    "abiVersion": "5.0.0"
+    "sdkVersion": "4.3.0"
   },
   "dependencies": {
     "@exponent/with-custom-font": "^1.0.0",
     "react": "^0.14.7",
-    "react-native": "exponentjs/react-native#2016-02-09",
+    "react-native": "exponentjs/react-native#2016-03-18",
     "react-redux": "^3.1.0",
     "redux": "^3.0.4",
     "seamless-immutable": "^4.0.2",
     "socket.io-client": "^1.3.7"
   },
   "devDependencies": {
-    "babel-eslint": "^4.1.6",
+    "babel-eslint": "^6.0.0-beta.5",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-preset-react-native": "^1.4.0",
-    "eslint": "^1.10.3",
-    "eslint-plugin-react": "^3.11.2"
+    "babel-preset-react-native": "^1.5.2",
+    "eslint": "^2.4.0",
+    "eslint-plugin-react": "^4.2.3"
   }
 }

@@ -7,7 +7,7 @@ import React, {
   View,
 } from 'react-native';
 
-import { connect } from 'react-redux/native';
+import { connect } from 'react-redux';
 import Immutable from 'seamless-immutable';
 import WithCustomFont from '@exponent/with-custom-font';
 

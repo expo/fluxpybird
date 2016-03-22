@@ -6,7 +6,7 @@ import React, {
   View,
 } from 'react-native';
 
-import { connect, Provider } from 'react-redux/native';
+import { connect, Provider } from 'react-redux';
 import { createStore } from 'redux';
 
 import Styles from './Styles';
@@ -148,7 +148,7 @@ const Main = () => {
                             mainReduce(undefined, { type: 'START' }));
   return (
     <Provider store={store}>
-      {() => <Game />}
+      <Game />
     </Provider>
   );
 };
